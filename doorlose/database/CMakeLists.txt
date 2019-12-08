@@ -1,17 +1,20 @@
-find_package(Boost 1.71.0)
+find_package(Boost 1.71.0 REQUIRED)
 find_package(GTest)
 
-file(GLOB database_includes include/*.hpp)
-file(GLOB database_sources src/*.cpp)
+file(GLOB_RECURSE db_includes include/*.hpp)
+file(GLOB_RECURSE db_src src/*)
 
-add_library(database SHARED ${database_sources})
+source_group("include" FILES ${db_includes})
+source_group("src"     FILES ${db_src})
+
+add_library(database SHARED ${db_includes} ${db_src})
 
 target_include_directories(database
     PRIVATE
-        ${database_includes}
+        ${db_includes}
 )
 
-target_link_libraries (database
+target_link_libraries(database
     PRIVATE
         Boost
 )

@@ -1,14 +1,15 @@
-#include "task_base.hpp"
+#include <doorlose/database/task_base.hpp>
 
 #include <cassert>
 
 namespace doorlose {
+namespace database {
 namespace {
 
 struct task_header
 {
     bool removed;
-    std::uint8_t body[];
+    //std::uint8_t body[];
 };
 
 } // namespace
@@ -51,5 +52,5 @@ void task_base::deserialize()
 {
 }
 
-
+} // namespace database
 } // namespace doorlose

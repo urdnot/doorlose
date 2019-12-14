@@ -4,6 +4,7 @@
 #include <vector>
 
 namespace doorlose {
+namespace database {
 
 class task_base
 {
@@ -54,4 +55,5 @@ private:
     std::vector<std::uint8_t> base_;
 };
 
+} // namespace database
 } // namespace doorlose

@@ -1,8 +1,8 @@
-file(GLOB backend_sources *.cpp)
+file(GLOB sources *.cpp)
 
-add_executable(backend ${backend_sources})
+add_executable(doorlose_backend ${sources})
 
-target_link_libraries(backend
+target_link_libraries(doorlose_backend
     PRIVATE
-        database
+        doorlose_database
 )

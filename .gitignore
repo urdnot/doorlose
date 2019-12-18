@@ -1,4 +1,4 @@
-external/
+external/*
+!external/readme.txt
 build/
 *.patch
-.clang-format

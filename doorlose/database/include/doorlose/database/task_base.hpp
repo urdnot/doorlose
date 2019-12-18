@@ -1,12 +1,14 @@
 #pragma once
 
+#include <doorlose/database/common.hpp>
+
 #include <string_view>
 #include <vector>
 
 namespace doorlose {
 namespace database {
 
-class task_base
+class DOORLOSE_DATABASE_EXPORT task_base
 {
 public:
     /**

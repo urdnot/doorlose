@@ -31,7 +31,7 @@ TEST_F(task_base_test, ctor_base_initialize_check)
 {
     task_base tb(1024, 10);
     EXPECT_EQ(1024, tb.max_task_size());
-    EXPECT_EQ(10, tb.capacity());
+    EXPECT_EQ(task_base::MIN_GRANULARITY, tb.capacity());
     EXPECT_EQ(0, tb.size());
 }
 
@@ -52,34 +52,30 @@ TEST_F(task_base_test, add_change_size)
     task_base tb(1024, 10);
 
     EXPECT_EQ(0, tb.size());
-    EXPECT_EQ(10, tb.capacity());
+    EXPECT_EQ(task_base::MIN_GRANULARITY, tb.capacity());
     tb.add(TEST_TASK);
     EXPECT_EQ(1, tb.size());
-    EXPECT_EQ(10, tb.capacity());
+    EXPECT_EQ(task_base::MIN_GRANULARITY, tb.capacity());
 }
 
-TEST_F(task_base_test, add_more_capacity_doubles_capacity)
+TEST_F(task_base_test, add_more_capacity_increase_capacity)
 {
     task_base tb(1024, 2);
 
+
     EXPECT_EQ(0, tb.size());
-    EXPECT_EQ(2, tb.capacity());
+    EXPECT_EQ(task_base::MIN_GRANULARITY, tb.capacity());
+
+    for (std::uint64_t i = 0; i < task_base::MIN_GRANULARITY; ++i)
+    {
+        tb.add(TEST_TASK);
+        EXPECT_EQ(i + 1, tb.size());
+        EXPECT_EQ(task_base::MIN_GRANULARITY, tb.capacity());
+    }
 
     tb.add(TEST_TASK);
-    EXPECT_EQ(1, tb.size());
-    EXPECT_EQ(2, tb.capacity());
-
-    tb.add(TEST_TASK);
-    EXPECT_EQ(2, tb.size());
-    EXPECT_EQ(2, tb.capacity());
-
-    tb.add(TEST_TASK);
-    EXPECT_EQ(3, tb.size());
-    EXPECT_EQ(4, tb.capacity());
-
-    tb.add(TEST_TASK);
-    EXPECT_EQ(4, tb.size());
-    EXPECT_EQ(4, tb.capacity());
+    EXPECT_EQ(task_base::MIN_GRANULARITY + 1, tb.size());
+    EXPECT_EQ(2 * task_base::MIN_GRANULARITY, tb.capacity());
 }
 
 TEST_F(task_base_test, add_and_get)
@@ -94,7 +90,7 @@ TEST_F(task_base_test, add_with_overflow_size)
 {
     task_base tb(1024, 10);
     const std::string overflow_text(tb.max_task_size() + 1, 'c');
-    EXPECT_THROW(tb.add(overflow_text), std::length_error);
+    EXPECT_THROW(tb.add(overflow_text), std::out_of_range);
 }
 
 TEST_F(task_base_test, get_id_out_of_range)
@@ -179,7 +175,7 @@ TEST_F(task_base_test, serialize_deserialize)
     tb.deserialize(FILE_PATH);
 
     EXPECT_EQ(1024, tb.max_task_size());
-    EXPECT_EQ(10, tb.capacity());
+    EXPECT_EQ(task_base::MIN_GRANULARITY, tb.capacity());
     EXPECT_EQ(2, tb.size());
     EXPECT_EQ(TEST_TASK, tb.get(0));
     EXPECT_EQ(TEST_TASK_1, tb.get(1));

@@ -15,6 +15,9 @@ namespace database {
 class DOORLOSE_DATABASE_EXPORT task_base
 {
 public:
+    static const std::uint64_t MIN_GRANULARITY = 512;
+
+public:
     /**
      *
      */
@@ -23,7 +26,7 @@ public:
     /**
      *
      */
-    explicit task_base(const std::uint64_t task_size, const std::uint64_t start_task_count);
+    explicit task_base(const std::uint64_t task_size, const std::uint64_t granularity);
 
     /**
      *
@@ -69,11 +72,18 @@ public:
      *
      */
     void deserialize(const std::filesystem::path &from);
+
 private:
-    std::uint64_t max_task_size_;
-    std::uint64_t task_entry_size_;
-    std::uint64_t base_capacity_;
-    std::uint64_t task_count_;
+    std::uint8_t *get_task_entry(std::uint64_t id) noexcept;
+    const std::uint8_t *get_task_entry(std::uint64_t id) const noexcept;
+    void expand();
+
+private:
+    std::uint64_t max_task_size_{};
+    std::uint64_t task_entry_size_{};
+    std::uint64_t granularity_{};
+    std::uint64_t base_capacity_{};
+    std::uint64_t task_count_{};
     std::vector<std::uint8_t> base_;
 };
 

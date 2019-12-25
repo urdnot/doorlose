@@ -1,6 +1,6 @@
 #pragma once
 
-#include <doorlose/database/common.hpp>
+#include <doorlose/database/detail/common.hpp>
 
 #include <filesystem>
 #include <string_view>
@@ -8,15 +8,13 @@
 
 namespace doorlose {
 namespace database {
+namespace detail {
 
 /**
  *
  */
 class DOORLOSE_DATABASE_EXPORT task_base
 {
-public:
-    static const std::uint64_t MIN_GRANULARITY = 512;
-
 public:
     /**
      *
@@ -46,7 +44,7 @@ public:
     /**
      *
      */
-    std::string_view get(std::uint64_t id) const noexcept;
+    std::string_view get(std::uint64_t id) const;
 
     /**
      *
@@ -64,28 +62,36 @@ public:
     void update(std::uint64_t id, std::string_view task);
 
     /**
-     *
+     * Basic exception guaranty.
+     * @throws std::runtime_error in case std::ofstream error
      */
-    void serialize(const std::filesystem::path &to);
+    void serialize(const std::filesystem::path &to) const;
 
     /**
-     *
+     * Basic exception guaranty
+     * @throws std::runtime_error in case std::ifstream error,
+     * @throws std::bad_alloc in case allocation error
+     * @throws std::invalid_argument in case invalid task base settings
      */
     void deserialize(const std::filesystem::path &from);
 
 private:
-    std::uint8_t *get_task_entry(std::uint64_t id) noexcept;
-    const std::uint8_t *get_task_entry(std::uint64_t id) const noexcept;
+    std::uint8_t *get_task_entry(std::uint64_t id);
+    const std::uint8_t *get_task_entry(std::uint64_t id) const;
+    void init(const std::uint64_t task_size, const std::uint64_t granularity,
+        const std::uint64_t capacity, const std::uint64_t task_count);
     void expand();
 
 private:
     std::uint64_t max_task_size_{};
     std::uint64_t task_entry_size_{};
     std::uint64_t granularity_{};
-    std::uint64_t base_capacity_{};
+    std::uint64_t capacity_{};
     std::uint64_t task_count_{};
+
     std::vector<std::uint8_t> base_;
 };
 
+} // namespace detail
 } // namespace database
 } // namespace doorlose

@@ -9,7 +9,7 @@ namespace {
 
 const std::string TEST_TASK = "Test task text.";
 const std::string TEST_TASK_1 = "Another one test task";
-const std::filesystem::path FILE_PATH = "test.db";
+const std::filesystem::path FILE_PATH = "task_test.db";
 
 class task_base_test : public ::testing::Test
 {

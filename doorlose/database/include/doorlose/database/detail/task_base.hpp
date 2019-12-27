@@ -62,13 +62,13 @@ public:
     void update(std::uint64_t id, std::string_view task);
 
     /**
-     * Basic exception guaranty.
+     * Strong exception guaranty.
      * @throws std::runtime_error in case std::ofstream error
      */
     void serialize(const std::filesystem::path &to) const;
 
     /**
-     * Basic exception guaranty
+     * Strong exception guaranty
      * @throws std::runtime_error in case std::ifstream error,
      * @throws std::bad_alloc in case allocation error
      * @throws std::invalid_argument in case invalid task base settings

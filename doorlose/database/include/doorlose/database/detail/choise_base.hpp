@@ -77,16 +77,18 @@ public:
     void deserialize(const std::filesystem::path &from);
 
 private:
+    std::uint8_t *get_entry(std::uint64_t id);
+    const std::uint8_t *get_entry(std::uint64_t id) const;
     void expand(std::uint64_t delta);
     void expand_mask(std::uint64_t delta);
 
 private:
-    std::uint64_t mask_size_;
-    std::uint64_t mask_capacity_;
-    std::uint64_t mask_granularity_;
-    std::uint64_t record_size_;
-    std::uint64_t record_capacity_;
-    std::uint64_t record_granularity_;
+    std::uint64_t mask_size_{};
+    std::uint64_t mask_granularity_{};
+    std::uint64_t mask_capacity_{};
+    std::uint64_t record_size_{};
+    std::uint64_t record_granularity_{};
+    std::uint64_t record_capacity_{};
     std::vector<std::uint8_t> base_;
 };
 

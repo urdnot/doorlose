@@ -50,7 +50,7 @@ std::uint64_t bitset::set_zero_bit_64(std::uint64_t *num, std::uint64_t n) noexc
 
 std::uint64_t bitset::get_random(std::uint8_t *mask, std::uint64_t bit_size) noexcept
 {
-    assert(((std::uint64_t)(mask) & 15) == 0); // check that pointer 8-byte align
+    assert(((std::uint64_t)(mask) % 8) == 0); // check that pointer 8-byte align
 
     const auto mask_64 = reinterpret_cast<std::uint64_t *>(mask);
     const auto rem_64 = 64 - bit_size % 64;

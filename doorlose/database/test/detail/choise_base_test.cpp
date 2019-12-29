@@ -16,7 +16,7 @@ class choise_base_test : public ::testing::Test
 public:
     choise_base_test()
     {
-
+        std::filesystem::remove(FILE_PATH);
     }
 };
 
@@ -42,6 +42,16 @@ TEST_F(choise_base_test, ctor_base_initialize_check)
 TEST_F(choise_base_test, invalid_mask_granularity)
 {
     EXPECT_THROW(choise_base cb(13, 65, 10), std::invalid_argument);
+}
+
+TEST_F(choise_base_test, zero_mask_granularity)
+{
+    EXPECT_THROW(choise_base cb(13, 0, 10), std::invalid_argument);
+}
+
+TEST_F(choise_base_test, zero_granularity)
+{
+    EXPECT_THROW(choise_base cb(13, 64, 0), std::invalid_argument);
 }
 
 TEST_F(choise_base_test, add_client_adds_to_the_end)
@@ -73,7 +83,7 @@ TEST_F(choise_base_test, add_client_more_capacity_increase_capacity)
         EXPECT_EQ(i, cb.add());
         EXPECT_EQ(10, cb.capacity());
     }
-    EXPECT_EQ(11, cb.add());
+    EXPECT_EQ(10, cb.add());
     EXPECT_EQ(20, cb.capacity());
 }
 

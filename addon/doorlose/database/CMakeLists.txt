@@ -16,7 +16,6 @@ add_library(doorlose_database SHARED ${db_header} ${db_includes} ${db_includes_d
 
 target_compile_definitions(doorlose_database
     PRIVATE
-
         DOORLOSE_DATABASE_BUILD
 )
 

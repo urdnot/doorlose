@@ -1,4 +1,5 @@
-external/*
-!external/readme.txt
-build/
+addon/external/*
+!addon/external/readme.txt
+addon/build/
+bin/
 *.patch

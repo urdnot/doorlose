@@ -2,10 +2,14 @@
 
 cd /D "%~dp0"
 
-if not exist "./build" (
+if not exist "./addon" (
+    mkdir addon 2>nul
+)
+
+if not exist "./addon/build" (
     mkdir build 2>nul
 )
-cd build
+cd addon/build
 
 echo on
 

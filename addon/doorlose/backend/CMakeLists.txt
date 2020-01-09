@@ -6,7 +6,7 @@ if (CMAKE_JS_VERSION)
 
     project (backend)
     include_directories(${CMAKE_JS_INC})
-    file(GLOB SOURCE_FILES "hello.cpp")
+    file(GLOB SOURCE_FILES "backend.cpp")
     add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
     target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
@@ -22,10 +22,15 @@ if (CMAKE_JS_VERSION)
 
     # define NPI_VERSION
     add_definitions(-DNAPI_VERSION=3)
-else ()
+else()
     file(GLOB node_src ./*.cpp ./*.js ./*.json)
     
-    source_group("src"   FILES ${node_src})
+    source_group("src" ${node_src})
     
-    add_custom_target(doorlose_backend DEPENDS node_src)
-endif ()
+    add_custom_target(doorlose_backend 
+        COMMAND
+            cmake-js build -d ${CMAKE_CURRENT_SOURCE_DIR}
+        SOURCES
+            ${node_src}
+    )
+endif()

@@ -1,0 +1,9 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "description": "Doorlose backend",
+  "private": true,
+  "dependencies": {
+    "node-addon-api": "^1.0.0"
+  }
+}

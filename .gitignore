@@ -1,5 +1,9 @@
-addon/external/*
-!addon/external/readme.txt
-addon/build/
 bin/
+build/
+node_modules/
+backend/external/*
+!backend/external/readme.txt
+!backend/external/build_gtest.bat
+!backend/external/build_boost.bat
+backend/node_modules/
 *.patch

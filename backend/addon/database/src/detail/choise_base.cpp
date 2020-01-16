@@ -73,12 +73,12 @@ std::uint64_t choise_base::mask_capacity() const noexcept
     return mask_capacity_;
 }
 
-std::uint8_t *choise_base::get_entry(std::uint64_t id)
+std::uint8_t *choise_base::get_entry(std::uint64_t id) noexcept
 {
     return base_.data() + (mask_capacity_ / 8) * id;
 }
 
-const std::uint8_t *choise_base::get_entry(std::uint64_t id) const
+const std::uint8_t *choise_base::get_entry(std::uint64_t id) const noexcept
 {
     return base_.data() + (mask_capacity_ / 8) * id;
 }
@@ -110,6 +110,12 @@ void choise_base::increase_mask(std::uint64_t delta)
     }
 
     mask_size_ += delta;
+}
+
+void choise_base::rollback_add() noexcept
+{
+    std::memset(get_entry(record_size_ - 1), 0, mask_capacity_ / 8);
+    record_size_--;
 }
 
 void choise_base::serialize(const std::filesystem::path &to) const

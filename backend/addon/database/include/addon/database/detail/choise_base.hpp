@@ -64,7 +64,7 @@ public:
     /**
      *
      */
-    //void rollback();
+    void rollback_add() noexcept;
 
     /**
      *
@@ -77,8 +77,8 @@ public:
     void deserialize(const std::filesystem::path &from);
 
 private:
-    std::uint8_t *get_entry(std::uint64_t id);
-    const std::uint8_t *get_entry(std::uint64_t id) const;
+    std::uint8_t *get_entry(std::uint64_t id) noexcept;
+    const std::uint8_t *get_entry(std::uint64_t id) const noexcept;
     void expand(std::uint64_t delta);
     void expand_mask(std::uint64_t delta);
 

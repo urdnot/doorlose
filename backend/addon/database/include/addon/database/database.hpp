@@ -8,26 +8,25 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <tuple>
 #include <vector>
 
 namespace addon {
 namespace database {
 
-struct ADDON_DATABASE_EXPORT get_request_t
+enum ADDON_DATABASE_EXPORT status_t : std::uint8_t
 {
-    std::uint64_t client_id;
-    std::uint64_t group_id;
-};
-
-struct ADDON_DATABASE_EXPORT get_response_t
-{
-    std::uint64_t client_id;
-    std::uint64_t group_id;
-    std::string_view task;
+    OK = 0,
+    INVALID_ARGUMENTS = 1,
+    INTERNAL_ERROR = 2,
+    LOST_ERROR_MESSAGE = 3,
 };
 
 class ADDON_DATABASE_EXPORT database
 {
+public:
+    static const std::uint64_t UNDEFINED_CLIENT_ID = 0xFFFFFFFFFFFFFFFF;
+
 public:
     explicit database();
 
@@ -40,7 +39,8 @@ public:
     /**
      * Get random task from specified group for specified client
      */
-    get_response_t get_task(get_request_t req);
+    std::tuple<status_t, std::uint64_t, std::string_view> get_task(std::uint64_t client_id,
+        std::uint64_t group_id) noexcept;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -50,34 +50,42 @@ public:
     /**
      *
      */
-    std::string_view examine_task(std::uint64_t group_id, std::uint64_t task_id);
+    std::tuple<status_t, std::string_view> examine_task(std::uint64_t group_id,
+        std::uint64_t task_id);
 
     /**
      *
      */
-    void update_task(std::uint64_t group_id, std::uint64_t task_id, std::string_view task);
+    std::tuple<status_t, std::string_view> update_task(std::uint64_t group_id,
+        std::uint64_t task_id, std::string_view task);
 
     /**
      *
      */
-    void remove_task(std::uint64_t group_id, std::uint64_t task_id);
+    std::tuple<status_t, std::string_view> remove_task(std::uint64_t group_id,
+        std::uint64_t task_id);
 
     /**
      * Add tasks from UTF-8 json file
      */
-    void add_from(const std::filesystem::path &from);
+    std::tuple<status_t, std::string_view> add_from(const std::filesystem::path &from);
 
     /**
      * Replace tasks from UTF-8 json file, wipe all clients choises
      */
-    void replace_from(const std::filesystem::path &from);
+    std::tuple<status_t, std::string_view> replace_from(const std::filesystem::path &from);
 
-    void serialize(const std::filesystem::path &to_folder) const;
-    void deserialize(const std::filesystem::path &from_folder);
+    std::tuple<status_t, std::string_view> serialize(const std::filesystem::path &to_folder) const;
+    std::tuple<status_t, std::string_view> deserialize(const std::filesystem::path &from_folder);
 
 private:
     struct client_record_t
     {
+        client_record_t()
+            : last_active(0)
+        {
+        }
+
         std::mutex mtx;
         std::time_t last_active;
     };
@@ -87,6 +95,12 @@ private:
         std::unique_ptr<detail::choise_base> choises;
         std::unique_ptr<detail::task_base> tasks;
     };
+
+private:
+    //ok_resp() const noexcept;
+    //invalid_arg_resp() const noexcept;
+    //internal_error_resp() const noexcept;
+    //lost_error_resp() const noexcept;
 
 private:
     const std::uint64_t START_MASK_SIZE = 512;       // bits

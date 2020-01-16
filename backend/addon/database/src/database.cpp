@@ -43,14 +43,64 @@ database::database(std::uint64_t groups_count)
 // Client
 ///////////////////////////////////////////////////////////////////////////
 
+//get_response_t database::ok_response(get_request_t req, std::string_view message) const noexcept
+//{
+//    get_response_t resp;
+//    resp.client_id = req.client_id;
+//    resp.group_id = req.group_id;
+//    resp.task = std::string();
+//    return resp;
+//}
+
 /**
  * Get random task from specified group for specified client
  */
-get_response_t database::get_task(get_request_t req)
+std::tuple<status_t, std::uint64_t, std::string_view> database::get_task(
+    std::uint64_t client_id, std::uint64_t group_id) noexcept
 {
     std::shared_lock lock(base_mtx_);
 
-    req.client_id
+    if (client_id != UNDEFINED_CLIENT_ID && client_id >= clients_.size())
+    {
+        return std::make_tuple(INVALID_ARGUMENTS, client_id,
+            "Client id out of range");
+    }
+
+    if (group_id >= groups_.size())
+    {
+        return std::make_tuple(INVALID_ARGUMENTS, client_id,
+            "Group id out of range");
+    }
+
+    if (client_id == UNDEFINED_CLIENT_ID)
+    {
+        try
+        {
+            clients_.push_back(client_record_t());
+        }
+        catch (...)
+        {
+            return std::make_tuple(INTERNAL_ERROR, client_id,
+                "Memory allocation error during client addition");
+        }
+
+        for (std::uint64_t i = 0; i < groups_.size(); ++i)
+        {
+            groups_[i].choises->add();  // !! rollbacks
+        }
+
+        client_id = clients_.size() - 1;
+    }
+
+    std::string_view task;
+
+    while (task.empty())
+    {
+        const std::uint64_t task_id = groups_[group_id].choises->choose(client_id);
+        task = groups_[group_id].tasks->get(task_id);
+    }
+
+    return resp;
 }
 
 
@@ -61,7 +111,8 @@ get_response_t database::get_task(get_request_t req)
 /**
  *
  */
-std::string_view database::examine_task(std::uint64_t group_id, std::uint64_t task_id)
+std::tuple<status_t, std::string_view> database::examine_task(
+    std::uint64_t group_id, std::uint64_t task_id)
 {
     return std::string_view();
 }
@@ -69,7 +120,8 @@ std::string_view database::examine_task(std::uint64_t group_id, std::uint64_t ta
 /**
  *
  */
-void database::update_task(std::uint64_t group_id, std::uint64_t task_id, std::string_view task)
+std::tuple<status_t, std::string_view> database::update_task(
+    std::uint64_t group_id, std::uint64_t task_id, std::string_view task)
 {
 
 }
@@ -77,29 +129,34 @@ void database::update_task(std::uint64_t group_id, std::uint64_t task_id, std::s
 /**
  *
  */
-void database::remove_task(std::uint64_t group_id, std::uint64_t task_id)
+std::tuple<status_t, std::string_view> database::remove_task(
+    std::uint64_t group_id, std::uint64_t task_id)
 {
 }
 
 /**
  * Add tasks from UTF-8 json file
  */
-void add_from(const std::filesystem::path &from)
+std::tuple<status_t, std::string_view> add_from(
+    const std::filesystem::path &from)
 {
 }
 
 /**
  * Replace tasks from UTF-8 json file, wipe all clients choises
  */
-void replace_from(const std::filesystem::path &from)
+std::tuple<status_t, std::string_view> replace_from(
+    const std::filesystem::path &from)
 {
 }
 
-void serialize(const std::filesystem::path &to_folder) const
+std::tuple<status_t, std::string_view> serialize(
+    const std::filesystem::path &to_folder) const
 {
 }
 
-void deserialize(const std::filesystem::path &from_folder)
+std::tuple<status_t, std::string_view> deserialize(
+    const std::filesystem::path &from_folder)
 {
 }
 

@@ -8,7 +8,7 @@ void check_non_zero(std::uint64_t value, std::string_view error_msg)
 {
     if (!value)
     {
-        throw std::invalid_argument(error_msg.data());
+        throw invalid_argument(error_msg.data());
     }
 }
 
@@ -16,7 +16,7 @@ void check_mult(std::uint64_t dividend, std::uint64_t divider, std::string_view 
 {
     if (!divider || dividend % divider)
     {
-        throw std::invalid_argument(error_msg.data());
+        throw invalid_argument(error_msg.data());
     }
 }
 
@@ -25,7 +25,7 @@ void check_limit(std::uint64_t value, std::uint64_t limit,
 {
     if (value >= limit)
     {
-        throw std::out_of_range(error_msg.data());
+        throw out_of_range(error_msg.data());
     }
 }
 
@@ -33,7 +33,7 @@ void check_ostream(const std::ofstream &os, std::string_view error_msg)
 {
     if (!os)
     {
-        throw std::runtime_error(error_msg.data());
+        throw runtime_error(error_msg.data());
     }
 }
 
@@ -41,7 +41,7 @@ void check_istream(const std::ifstream &is, std::string_view error_msg)
 {
     if (!is)
     {
-        throw std::runtime_error(error_msg.data());
+        throw runtime_error(error_msg.data());
     }
 }
 

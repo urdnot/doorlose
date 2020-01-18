@@ -4,6 +4,8 @@
 
 #include <ctime>
 
+#include <utility>
+
 namespace addon {
 namespace database {
 namespace {
@@ -18,19 +20,10 @@ using detail::check_istream;
 
 database::database()
 {
-}
-
-database::database(std::uint64_t groups_count)
-{
-    //
-    // Checks
-    //
-    check_non_zero(groups_count, "database::ctor(): `groups_count` cannot be zero");
-
     //
     // Inits
     //
-    for (std::uint64_t i = 0; i < groups_count; ++i)
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
         group_t group;
         group.choises =
@@ -48,21 +41,19 @@ database::database(std::uint64_t groups_count)
 /**
  * Get random task from specified group for specified client
  */
-std::tuple<status_t, std::uint64_t, std::string_view> database::get_task(
-    std::uint64_t client_id, std::uint64_t group_id) noexcept
+std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t client_id,
+    std::uint64_t group_id)
 {
     std::shared_lock lock(base_mtx_);
 
     if (client_id != UNDEFINED_CLIENT_ID && client_id >= clients_.size())
     {
-        return std::make_tuple(INVALID_ARGUMENTS, client_id,
-            "Client id out of range");
+        throw detail::invalid_argument("Client id out of range");
     }
 
     if (group_id >= groups_.size())
     {
-        return std::make_tuple(INVALID_ARGUMENTS, client_id,
-            "Group id out of range");
+        throw detail::invalid_argument("Group id out of range");
     }
 
     if (client_id == UNDEFINED_CLIENT_ID)
@@ -73,7 +64,7 @@ std::tuple<status_t, std::uint64_t, std::string_view> database::get_task(
         }
         catch (...)
         {
-            return std::make_tuple(INTERNAL_ERROR, client_id,
+            throw detail::runtime_error(
                 "Memory allocation error during client addition to clients vector");
         }
 
@@ -91,7 +82,7 @@ std::tuple<status_t, std::uint64_t, std::string_view> database::get_task(
                 }
                 clients_.pop_back();
 
-                return std::make_tuple(INTERNAL_ERROR, client_id,
+                throw detail::runtime_error(
                     "Memory allocation error during client addion to choises base");
             }
         }
@@ -115,9 +106,8 @@ std::tuple<status_t, std::uint64_t, std::string_view> database::get_task(
             (cur_time != (std::time_t)(-1)) ? cur_time : 0;
     }
 
-    return std::make_tuple(OK, client_id, task);
+    return std::make_pair(client_id, task);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 // Administration
@@ -126,16 +116,22 @@ std::tuple<status_t, std::uint64_t, std::string_view> database::get_task(
 /**
  *
  */
-std::tuple<status_t, std::string_view> database::examine_task(
-    std::uint64_t group_id, std::uint64_t task_id)
+std::string_view database::examine_task(std::uint64_t group_id, std::uint64_t task_id) const
 {
-    
+    std::shared_lock lock(base_mtx_);
+
+    if (group_id >= groups_.size())
+    {
+        throw detail::invalid_argument("Group id out of range");
+    }
+
+    return groups_[group_id].tasks->get(task_id);
 }
 
 /**
  *
  */
-std::tuple<status_t, std::string_view> database::update_task(
+void database::update_task(
     std::uint64_t group_id, std::uint64_t task_id, std::string_view task)
 {
 
@@ -144,34 +140,29 @@ std::tuple<status_t, std::string_view> database::update_task(
 /**
  *
  */
-std::tuple<status_t, std::string_view> database::remove_task(
-    std::uint64_t group_id, std::uint64_t task_id)
+void database::remove_task(std::uint64_t group_id, std::uint64_t task_id)
 {
 }
 
 /**
  * Add tasks from UTF-8 json file
  */
-std::tuple<status_t, std::string_view> database::add_from(
-    const std::filesystem::path &from)
+void database::add_from(const std::filesystem::path &from)
 {
 }
 
 /**
  * Replace tasks from UTF-8 json file, wipe all clients choises
  */
-std::tuple<status_t, std::string_view> database::replace_from(
-    const std::filesystem::path &from)
+void database::replace_from(const std::filesystem::path &from)
 {
 }
 
-std::tuple<status_t, std::string_view> database::serialize(
-    const std::filesystem::path &to_folder) const
+void database::serialize(const std::filesystem::path &to_folder) const
 {
 }
 
-std::tuple<status_t, std::string_view> database::deserialize(
-    const std::filesystem::path &from_folder)
+void database::deserialize(const std::filesystem::path &from_folder)
 {
 }
 

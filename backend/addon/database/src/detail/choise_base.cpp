@@ -6,7 +6,6 @@
 #include <cassert>
 
 #include <fstream>
-#include <stdexcept>
 
 namespace addon {
 namespace database {
@@ -146,7 +145,7 @@ void choise_base::deserialize(const std::filesystem::path &from)
 {
     if (!std::filesystem::exists(from))
     {
-        throw std::invalid_argument("choise_base::deserialize(): file for deserialize do not exist");
+        throw invalid_argument("choise_base::deserialize(): file for deserialize do not exist");
     }
 
     std::ifstream input(from);

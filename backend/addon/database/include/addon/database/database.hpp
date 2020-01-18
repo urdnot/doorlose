@@ -8,7 +8,6 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
-#include <tuple>
 #include <vector>
 
 namespace addon {
@@ -30,8 +29,6 @@ public:
 public:
     explicit database();
 
-    explicit database(std::uint64_t groups_count);
-
     ///////////////////////////////////////////////////////////////////////////
     // Client
     ///////////////////////////////////////////////////////////////////////////
@@ -39,8 +36,8 @@ public:
     /**
      * Get random task from specified group for specified client
      */
-    std::tuple<status_t, std::uint64_t, std::string_view> get_task(std::uint64_t client_id,
-        std::uint64_t group_id) noexcept;
+    std::pair<std::uint64_t, std::string_view> get_task(std::uint64_t client_id,
+        std::uint64_t group_id);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -50,33 +47,33 @@ public:
     /**
      *
      */
-    std::tuple<status_t, std::string_view> examine_task(std::uint64_t group_id,
-        std::uint64_t task_id);
+    std::string_view examine_task(std::uint64_t group_id,
+        std::uint64_t task_id) const;
 
     /**
      *
      */
-    std::tuple<status_t, std::string_view> update_task(std::uint64_t group_id,
+    void update_task(std::uint64_t group_id,
         std::uint64_t task_id, std::string_view task);
 
     /**
      *
      */
-    std::tuple<status_t, std::string_view> remove_task(std::uint64_t group_id,
+    void remove_task(std::uint64_t group_id,
         std::uint64_t task_id);
 
     /**
      * Add tasks from UTF-8 json file
      */
-    std::tuple<status_t, std::string_view> add_from(const std::filesystem::path &from);
+    void add_from(const std::filesystem::path &from);
 
     /**
      * Replace tasks from UTF-8 json file, wipe all clients choises
      */
-    std::tuple<status_t, std::string_view> replace_from(const std::filesystem::path &from);
+    void replace_from(const std::filesystem::path &from);
 
-    std::tuple<status_t, std::string_view> serialize(const std::filesystem::path &to_folder) const;
-    std::tuple<status_t, std::string_view> deserialize(const std::filesystem::path &from_folder);
+    void serialize(const std::filesystem::path &to_folder) const;
+    void deserialize(const std::filesystem::path &from_folder);
 
 private:
     struct client_record_t
@@ -97,19 +94,14 @@ private:
     };
 
 private:
-    //ok_resp() const noexcept;
-    //invalid_arg_resp() const noexcept;
-    //internal_error_resp() const noexcept;
-    //lost_error_resp() const noexcept;
-
-private:
+    const std::uint64_t GROUPS_COUNT = 6;            // groups
     const std::uint64_t START_MASK_SIZE = 512;       // bits
     const std::uint64_t MASK_GRANULARITY = 512;      // bits
     const std::uint64_t CLIENT_GRANULARITY = 1000;   // clients
     const std::uint64_t MAX_TASK_SIZE = 4096;        // bytes
     const std::uint64_t TASK_GRANULARITY = 1000;     // tasks
 
-    std::shared_mutex base_mtx_;
+    mutable std::shared_mutex base_mtx_;
     std::vector<client_record_t> clients_;
     std::vector<group_t> groups_;
 };

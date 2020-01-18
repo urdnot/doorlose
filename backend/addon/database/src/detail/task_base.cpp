@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <stdexcept>
 
 namespace addon {
 namespace database {
@@ -41,7 +40,6 @@ task_base::task_base(const std::uint64_t max_task_size, const std::uint64_t gran
     check_non_zero(max_task_size, "task_base::ctor(): `task_size` cannot be zero");
     check_non_zero(granularity, "task_base::ctor(): `granularity` cannot be zero");
     check_mult(max_task_size, 4, "task_base::ctor(): `task_size` should be multiple of 4 for alignment");
-    //check_mult(capacity, granularity, "task_base::ctor(): `capacity` should be multiple of `granularity`");
 
     //
     // Inits
@@ -136,7 +134,7 @@ void task_base::update(std::uint64_t id, std::string_view task)
     const auto task_entry = reinterpret_cast<task_entry_t *>(get_task_entry(id));
     if (task_entry->removed)
     {
-        throw std::invalid_argument("task_base::update(): Attempt to update removed task");
+        throw invalid_argument("task_base::update(): Attempt to update removed task");
     }
 
     task_entry->size = task.size();
@@ -171,7 +169,7 @@ void task_base::deserialize(const std::filesystem::path &from)
 {
     if (!std::filesystem::exists(from))
     {
-        throw std::invalid_argument("task_base::deserialize(): file for deserialize do not exist");
+        throw invalid_argument("task_base::deserialize(): file for deserialize do not exist");
     }
 
     std::ifstream input(from);

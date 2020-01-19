@@ -69,12 +69,22 @@ public:
     /**
      *
      */
+    void rollback_increase_mask() noexcept;
+
+    /**
+     *
+     */
     void serialize(const std::filesystem::path &to) const;
 
     /**
      *
      */
     void deserialize(const std::filesystem::path &from);
+
+    /**
+     *
+     */
+    void swap(choise_base &cb) noexcept;
 
 private:
     std::uint8_t *get_entry(std::uint64_t id) noexcept;
@@ -84,6 +94,7 @@ private:
 
 private:
     std::uint64_t mask_size_{};
+    std::uint64_t prev_mask_size_{};
     std::uint64_t mask_granularity_{};
     std::uint64_t mask_capacity_{};
     std::uint64_t record_size_{};

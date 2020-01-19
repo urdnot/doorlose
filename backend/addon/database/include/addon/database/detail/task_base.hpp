@@ -44,7 +44,7 @@ public:
     /**
      *
      */
-    std::string_view get(std::uint64_t id) const;
+    std::pair<std::string_view, bool> get(std::uint64_t id) const;
 
     /**
      *
@@ -54,7 +54,7 @@ public:
     /**
      *
      */
-    void remove(std::uint64_t id);
+    void update(std::uint64_t id, bool removed);
 
     /**
      *
@@ -74,6 +74,11 @@ public:
      * @throws std::invalid_argument in case invalid task base settings
      */
     void deserialize(const std::filesystem::path &from);
+
+    /**
+     *
+     */
+    void swap(task_base &tb) noexcept;
 
 private:
     std::uint8_t *get_task_entry(std::uint64_t id);

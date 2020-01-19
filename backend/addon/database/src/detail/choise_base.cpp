@@ -108,6 +108,7 @@ void choise_base::increase_mask(std::uint64_t delta)
         expand_mask(dlt);
     }
 
+    prev_mask_size_ = mask_size_;
     mask_size_ += delta;
 }
 
@@ -117,9 +118,15 @@ void choise_base::rollback_add() noexcept
     record_size_--;
 }
 
+void choise_base::rollback_increase_mask() noexcept
+{
+    mask_size_ = prev_mask_size_;
+}
+
 void choise_base::serialize(const std::filesystem::path &to) const
 {
-    std::ofstream output(to, std::ios_base::out | std::ios_base::trunc);
+    std::ofstream output(to,
+        std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
     check_ostream(output, "choise_base::serialize(): cannot open output file for serialize");
 
@@ -148,7 +155,7 @@ void choise_base::deserialize(const std::filesystem::path &from)
         throw invalid_argument("choise_base::deserialize(): file for deserialize do not exist");
     }
 
-    std::ifstream input(from);
+    std::ifstream input(from, std::ios_base::binary);
 
     check_istream(input, "choise_base::deserialize(): cannot open input file for deserialize");
 

@@ -13,14 +13,6 @@
 namespace addon {
 namespace database {
 
-enum ADDON_DATABASE_EXPORT status_t : std::uint8_t
-{
-    OK = 0,
-    INVALID_ARGUMENTS = 1,
-    INTERNAL_ERROR = 2,
-    LOST_ERROR_MESSAGE = 3,
-};
-
 class ADDON_DATABASE_EXPORT database
 {
 public:
@@ -47,8 +39,14 @@ public:
     /**
      *
      */
-    std::string_view examine_task(std::uint64_t group_id,
+    std::pair<std::string_view, bool> examine_task(std::uint64_t group_id,
         std::uint64_t task_id) const;
+
+    /**
+     *
+     */
+    void update_task(std::uint64_t group_id,
+        std::uint64_t task_id, bool removed);
 
     /**
      *
@@ -57,20 +55,9 @@ public:
         std::uint64_t task_id, std::string_view task);
 
     /**
-     *
+     * Add task
      */
-    void remove_task(std::uint64_t group_id,
-        std::uint64_t task_id);
-
-    /**
-     * Add tasks from UTF-8 json file
-     */
-    void add_from(const std::filesystem::path &from);
-
-    /**
-     * Replace tasks from UTF-8 json file, wipe all clients choises
-     */
-    void replace_from(const std::filesystem::path &from);
+    void add_task(std::uint64_t group_id, std::string_view task);
 
     void serialize(const std::filesystem::path &to_folder) const;
     void deserialize(const std::filesystem::path &from_folder);
@@ -100,6 +87,10 @@ private:
     const std::uint64_t CLIENT_GRANULARITY = 1000;   // clients
     const std::uint64_t MAX_TASK_SIZE = 4096;        // bytes
     const std::uint64_t TASK_GRANULARITY = 1000;     // tasks
+
+    const std::string CLIENTS_FILE = "clients.db";
+    const std::string CHOISES_FILE = "choises.db";
+    const std::string TASKS_FILE = "tasks.db"; 
 
     mutable std::shared_mutex base_mtx_;
     std::vector<client_record_t> clients_;

@@ -104,26 +104,21 @@ std::uint64_t task_base::add(std::string_view task)
     return result_id;
 }
 
-std::string_view task_base::get(std::uint64_t id) const
+std::pair<std::string_view, bool> task_base::get(std::uint64_t id) const
 {
     check_limit(id, task_count_, "task_base::get(): Task index out of range");
 
     const auto task_entry = reinterpret_cast<const task_entry_t *>(get_task_entry(id));
-
-    if (task_entry->removed)
-    {
-        return std::string_view();
-    }
-
-    return std::string_view(reinterpret_cast<const char *>(task_entry->body), task_entry->size);
+    return std::make_pair(
+        std::string_view(reinterpret_cast<const char *>(task_entry->body), task_entry->size),
+        task_entry->removed);
 }
 
-void task_base::remove(std::uint64_t id)
+void task_base::update(std::uint64_t id, bool removed)
 {
-    check_limit(id, task_count_, "task_base::remove(): Task index out of range");
-
+    check_limit(id, task_count_, "task_base::update(): Task index out of range");
     const auto task_entry = reinterpret_cast<task_entry_t *>(get_task_entry(id));
-    task_entry->removed = 1;
+    task_entry->removed = removed;
 }
 
 void task_base::update(std::uint64_t id, std::string_view task)
@@ -132,18 +127,14 @@ void task_base::update(std::uint64_t id, std::string_view task)
     check_limit(id, task_count_, "task_base::update(): Task index out of range");
 
     const auto task_entry = reinterpret_cast<task_entry_t *>(get_task_entry(id));
-    if (task_entry->removed)
-    {
-        throw invalid_argument("task_base::update(): Attempt to update removed task");
-    }
-
     task_entry->size = task.size();
     std::memcpy(reinterpret_cast<char *>(task_entry->body), task.data(), task.size());
 }
 
 void task_base::serialize(const std::filesystem::path &to) const
 {
-    std::ofstream output(to, std::ios_base::out | std::ios_base::trunc);
+    std::ofstream output(to,
+        std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
     check_ostream(output, "task_base::serialize(): cannot open output file for serialize");
 
@@ -172,7 +163,7 @@ void task_base::deserialize(const std::filesystem::path &from)
         throw invalid_argument("task_base::deserialize(): file for deserialize do not exist");
     }
 
-    std::ifstream input(from);
+    std::ifstream input(from, std::ios_base::binary);
 
     check_istream(input, "task_base::deserialize(): cannot open input file for deserialize");
 
@@ -213,6 +204,8 @@ void task_base::deserialize(const std::filesystem::path &from)
 
     base_.swap(base);
 }
+
+
 
 } // namespace detail
 } // namespace database

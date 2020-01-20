@@ -205,7 +205,16 @@ void task_base::deserialize(const std::filesystem::path &from)
     base_.swap(base);
 }
 
+void task_base::swap(task_base &tb) noexcept
+{
+    std::swap(max_task_size_, tb.max_task_size_);
+    std::swap(task_entry_size_, tb.task_entry_size_);
+    std::swap(granularity_, tb.granularity_);
+    std::swap(capacity_, tb.capacity_);
+    std::swap(task_count_, tb.task_count_);
 
+    base_.swap(tb.base_);
+}
 
 } // namespace detail
 } // namespace database

@@ -4,6 +4,7 @@
 
 #include <ctime>
 
+#include <filesystem>
 #include <fstream>
 #include <utility>
 
@@ -199,6 +200,8 @@ void database::serialize(const std::filesystem::path &to_folder) const
 {
     std::unique_lock lock(base_mtx_);
 
+    std::filesystem::create_directory(to_folder);
+
     std::ofstream output(to_folder / CLIENTS_FILE,
         std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
@@ -242,7 +245,30 @@ void database::deserialize(const std::filesystem::path &from_folder)
     input.read(reinterpret_cast<char *>(&header), sizeof(serialization_header_t));
     check_istream(input, "database::deserialize(): cannot deserialize header");
 
+    std::vector<client_record_t> clients_swap;
+    std::vector<detail::task_base> tasks_swap;
+    std::vector<detail::choise_base> choises_swap;
 
+    for (std::uint64_t i = 0; i < header.clients_count; ++i)
+    {
+        input.read(reinterpret_cast<char *>(&clients_swap[i].last_active), sizeof(std::time_t));
+        check_istream(input, "database::deserialize(): cannot deserialize client data");
+    }
+
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        tasks_swap.push_back(detail::task_base());
+        tasks_swap.back().deserialize(from_folder / TASKS_FILE);
+        choises_swap.push_back(detail::choise_base());
+        choises_swap.back().deserialize(from_folder / CHOISES_FILE);
+    }
+
+    clients_.swap(clients_swap);
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        groups_[i].tasks->swap(tasks_swap[i]);
+        groups_[i].choises->swap(choises_swap[i]);
+    }
 }
 
 } // namespace database

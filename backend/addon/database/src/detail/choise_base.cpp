@@ -200,6 +200,19 @@ void choise_base::deserialize(const std::filesystem::path &from)
     base_.swap(base);
 }
 
+void choise_base::swap(choise_base &cb) noexcept
+{
+    std::swap(mask_size_, cb.mask_size_);
+    std::swap(prev_mask_size_, cb.prev_mask_size_);
+    std::swap(mask_granularity_, cb.mask_granularity_);
+    std::swap(mask_capacity_, cb.mask_capacity_);
+    std::swap(record_size_, cb.record_size_);
+    std::swap(record_granularity_, cb.record_granularity_);
+    std::swap(record_capacity_, cb.record_capacity_);
+
+    base_.swap(cb.base_);
+}
+
 void choise_base::expand(std::uint64_t delta)
 {
     base_.resize(base_.size() +

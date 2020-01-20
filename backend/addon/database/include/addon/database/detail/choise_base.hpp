@@ -100,6 +100,7 @@ private:
     std::uint64_t record_size_{};
     std::uint64_t record_granularity_{};
     std::uint64_t record_capacity_{};
+
     std::vector<std::uint8_t> base_;
 };
 

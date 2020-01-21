@@ -70,6 +70,11 @@ private:
         {
         }
 
+        client_record_t(client_record_t &&rec)
+        {
+            last_active = rec.last_active;
+        }
+
         std::mutex mtx;
         std::time_t last_active;
     };

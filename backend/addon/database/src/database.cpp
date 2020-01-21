@@ -53,12 +53,12 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
 
     if (client_id != UNDEFINED_CLIENT_ID && client_id >= clients_.size())
     {
-        throw detail::invalid_argument("database::get_task(): Client id out of range");
+        throw invalid_argument("database::get_task(): Client id out of range");
     }
 
     if (group_id >= groups_.size())
     {
-        throw detail::invalid_argument("database::get_task(): Group id out of range");
+        throw invalid_argument("database::get_task(): Group id out of range");
     }
 
     if (client_id == UNDEFINED_CLIENT_ID)
@@ -69,7 +69,7 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
         }
         catch (...)
         {
-            throw detail::runtime_error(
+            throw runtime_error(
                 "database::get_task(): Memory allocation error during client addition to clients vector");
         }
 
@@ -87,7 +87,7 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
                 }
                 clients_.pop_back();
 
-                throw detail::runtime_error(
+                throw runtime_error(
                     "database::get_task(): Memory allocation error during client addion to choises base");
             }
         }
@@ -96,11 +96,12 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
     }
 
     std::pair<std::string_view, bool> task_record;
+    task_record.second = true;
 
     {
         std::lock_guard lock_client(clients_[client_id].mtx);
 
-        while (!task_record.second)
+        while (task_record.second)
         {
             const std::uint64_t task_id = groups_[group_id].choises->choose(client_id);
             task_record = groups_[group_id].tasks->get(task_id);
@@ -127,7 +128,7 @@ std::pair<std::string_view, bool> database::examine_task(std::uint64_t group_id,
 
     if (group_id >= groups_.size())
     {
-        throw detail::invalid_argument("database::examine_task(): Group id out of range");
+        throw invalid_argument("database::examine_task(): Group id out of range");
     }
 
     return groups_[group_id].tasks->get(task_id);
@@ -143,7 +144,7 @@ void database::update_task(std::uint64_t group_id, std::uint64_t task_id,
 
     if (group_id >= groups_.size())
     {
-        throw detail::invalid_argument("database::update_task(): Group id out of range");
+        throw invalid_argument("database::update_task(): Group id out of range");
     }
 
     groups_[group_id].tasks->update(task_id, removed);
@@ -159,7 +160,7 @@ void database::update_task(
 
     if (group_id >= groups_.size())
     {
-        throw detail::invalid_argument("database::update_task(): Group id out of range");
+        throw invalid_argument("database::update_task(): Group id out of range");
     }
 
     groups_[group_id].tasks->update(task_id, task);
@@ -178,7 +179,7 @@ void database::add_task(std::uint64_t group_id, std::string_view task)
     }
     catch (...)
     {
-        throw detail::runtime_error(
+        throw runtime_error(
             "database::add_task(): Memory allocation error during increase choises mask");
     }
 
@@ -189,7 +190,7 @@ void database::add_task(std::uint64_t group_id, std::string_view task)
     catch (...)
     {
         groups_[group_id].choises->rollback_increase_mask();
-        throw detail::runtime_error(
+        throw runtime_error(
             "database::add_task(): Memory allocation error during task addition");
     }
 }
@@ -233,7 +234,7 @@ void database::deserialize(const std::filesystem::path &from_folder)
 
     if (!std::filesystem::exists(from_folder / CLIENTS_FILE))
     {
-        throw detail::invalid_argument("database::deserialize(): client file for deserialize do not exist");
+        throw invalid_argument("database::deserialize(): client file for deserialize do not exist");
     }
 
     std::ifstream input(from_folder / CLIENTS_FILE, std::ios_base::binary);

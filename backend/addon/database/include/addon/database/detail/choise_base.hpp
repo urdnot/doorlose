@@ -1,6 +1,7 @@
 #pragma once
 
 #include <addon/database/detail/common.hpp>
+#include <addon/database/types.hpp>
 
 #include <filesystem>
 #include <vector>
@@ -23,7 +24,7 @@ public:
     /**
      *
      */
-    explicit choise_base(const std::uint64_t start_mask_size,
+    explicit choise_base(const std::uint64_t start_mask_size,   ///!!!!!!!!!!!!! must be zero at start
         std::uint64_t mask_granularity, const std::uint64_t record_granularity);
     
     /**

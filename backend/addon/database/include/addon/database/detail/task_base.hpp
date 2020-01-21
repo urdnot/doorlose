@@ -1,6 +1,7 @@
 #pragma once
 
 #include <addon/database/detail/common.hpp>
+#include <addon/database/types.hpp>
 
 #include <filesystem>
 #include <string_view>
@@ -83,8 +84,6 @@ public:
 private:
     std::uint8_t *get_task_entry(std::uint64_t id);
     const std::uint8_t *get_task_entry(std::uint64_t id) const;
-    void init(const std::uint64_t task_size, const std::uint64_t granularity,
-        const std::uint64_t capacity, const std::uint64_t task_count);
     void expand();
 
 private:

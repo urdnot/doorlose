@@ -1,4 +1,5 @@
 #include <addon/database/detail/choise_base.hpp>
+#include <addon/database/detail/utils.hpp>
 
 #include <gtest/gtest.h>
 
@@ -41,17 +42,17 @@ TEST_F(choise_base_test, ctor_base_initialize_check)
 
 TEST_F(choise_base_test, invalid_mask_granularity)
 {
-    EXPECT_THROW(choise_base cb(13, 65, 10), std::invalid_argument);
+    EXPECT_THROW(choise_base cb(13, 65, 10), invalid_argument);
 }
 
 TEST_F(choise_base_test, zero_mask_granularity)
 {
-    EXPECT_THROW(choise_base cb(13, 0, 10), std::invalid_argument);
+    EXPECT_THROW(choise_base cb(13, 0, 10), invalid_argument);
 }
 
 TEST_F(choise_base_test, zero_granularity)
 {
-    EXPECT_THROW(choise_base cb(13, 64, 0), std::invalid_argument);
+    EXPECT_THROW(choise_base cb(13, 64, 0), invalid_argument);
 }
 
 TEST_F(choise_base_test, add_client_adds_to_the_end)
@@ -85,6 +86,17 @@ TEST_F(choise_base_test, add_client_more_capacity_increase_capacity)
     }
     EXPECT_EQ(10, cb.add());
     EXPECT_EQ(20, cb.capacity());
+}
+
+TEST_F(choise_base_test, rollback_add_check)
+{
+    choise_base cb(13, 64, 10);
+
+    cb.add();
+    EXPECT_EQ(1, cb.size());
+
+    cb.rollback_add();
+    EXPECT_EQ(0, cb.size());
 }
 
 TEST_F(choise_base_test, choose_task_index)
@@ -150,7 +162,7 @@ TEST_F(choise_base_test, choose_task_client_id_out_of_range)
 {
     choise_base cb(13, 64, 10);
     EXPECT_EQ(0, cb.size());
-    EXPECT_THROW(cb.choose(1), std::out_of_range);
+    EXPECT_THROW(cb.choose(1), out_of_range);
 }
 
 TEST_F(choise_base_test, increase_mask_change_mask_size)
@@ -172,6 +184,15 @@ TEST_F(choise_base_test, increase_mask_more_capacity_change_mask_capacity)
     cb.increase_mask(1);
     EXPECT_EQ(65, cb.mask_size());
     EXPECT_EQ(128, cb.mask_capacity());
+}
+
+TEST_F(choise_base_test, rollback_increase_mask_check)
+{
+    choise_base cb(13, 64, 10);
+    cb.increase_mask(5);
+    EXPECT_EQ(18, cb.mask_size());
+    cb.rollback_increase_mask();
+    EXPECT_EQ(13, cb.mask_size());
 }
 
 TEST_F(choise_base_test, serialize_create_file)
@@ -224,7 +245,29 @@ TEST_F(choise_base_test, serialize_deserialize)
 TEST_F(choise_base_test, deserialize_from_nonexistent_path)
 {
     choise_base cb;
-    EXPECT_THROW(cb.deserialize("nonexistent_path.db"), std::invalid_argument);
+    EXPECT_THROW(cb.deserialize("nonexistent_path.db"), invalid_argument);
+}
+
+TEST_F(choise_base_test, swap_check)
+{
+    choise_base a(10, 64, 10);
+    a.add();
+
+    choise_base b(20, 128, 20);
+    b.add();
+    b.add();
+
+    a.swap(b);
+
+    EXPECT_EQ(2, a.size());
+    EXPECT_EQ(20, a.capacity());
+    EXPECT_EQ(20, a.mask_size());
+    EXPECT_EQ(128, a.mask_capacity());
+
+    EXPECT_EQ(1, b.size());
+    EXPECT_EQ(10, b.capacity());
+    EXPECT_EQ(10, b.mask_size());
+    EXPECT_EQ(64, b.mask_capacity());
 }
 
 } // namespace

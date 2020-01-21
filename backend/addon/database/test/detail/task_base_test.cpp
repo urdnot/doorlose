@@ -1,4 +1,5 @@
 #include <addon/database/detail/task_base.hpp>
+#include <addon/database/detail/utils.hpp>
 
 #include <gtest/gtest.h>
 
@@ -38,7 +39,7 @@ TEST_F(task_base_test, ctor_base_initialize_check)
 
 TEST_F(task_base_test, invalid_init_task_size)
 {
-    EXPECT_THROW(task_base tb(123, 10), std::invalid_argument);
+    EXPECT_THROW(task_base tb(123, 10), invalid_argument);
 }
 
 TEST_F(task_base_test, add_adds_to_the_end)
@@ -85,48 +86,52 @@ TEST_F(task_base_test, add_and_get)
     task_base tb(1024, 10);
 
     tb.add(TEST_TASK);
-    EXPECT_EQ(TEST_TASK, tb.get(0));
+    const auto res = tb.get(0);
+    EXPECT_EQ(TEST_TASK, res.first);
+    EXPECT_FALSE(res.second);
 }
 
 TEST_F(task_base_test, add_with_overflow_size)
 {
     task_base tb(1024, 10);
     const std::string overflow_text(tb.max_task_size() + 1, 'c');
-    EXPECT_THROW(tb.add(overflow_text), std::out_of_range);
+    EXPECT_THROW(tb.add(overflow_text), out_of_range);
 }
 
 TEST_F(task_base_test, get_id_out_of_range)
 {
     task_base tb(1024, 10);
-    EXPECT_THROW(tb.get(1), std::out_of_range);
+    EXPECT_THROW(tb.get(1), out_of_range);
 }
 
-//TEST_F(task_base_test, get_removed_task_return_empty_string)
-//{
-//    task_base tb(1024, 10);
-//    const auto id = tb.add(TEST_TASK);
-//    EXPECT_NO_THROW(tb.remove(id));
-//    EXPECT_EQ("", tb.get(id));
-//}
-//
-//TEST_F(task_base_test, remove_out_of_range)
-//{
-//    task_base tb(1024, 10);
-//    EXPECT_THROW(tb.remove(0), std::out_of_range);
-//}
-//
-//TEST_F(task_base_test, remove_do_not_change_size)
-//{
-//    task_base tb(1024, 10);
-//    const auto id = tb.add(TEST_TASK);
-//    tb.remove(id);
-//    EXPECT_EQ(1, tb.size());
-//}
+TEST_F(task_base_test, get_removed_task)
+{
+    task_base tb(1024, 10);
+    const auto id = tb.add(TEST_TASK);
+    EXPECT_NO_THROW(tb.update(id, true));
+    const auto res = tb.get(id);
+    EXPECT_EQ(TEST_TASK, res.first);
+    EXPECT_TRUE(res.second);
+}
+
+TEST_F(task_base_test, remove_out_of_range)
+{
+    task_base tb(1024, 10);
+    EXPECT_THROW(tb.update(0, true), out_of_range);
+}
+
+TEST_F(task_base_test, remove_do_not_change_size)
+{
+    task_base tb(1024, 10);
+    const auto id = tb.add(TEST_TASK);
+    tb.update(id, true);
+    EXPECT_EQ(1, tb.size());
+}
 
 TEST_F(task_base_test, update_out_of_range)
 {
     task_base tb(1024, 10);
-    EXPECT_THROW(tb.update(0, TEST_TASK), std::out_of_range);
+    EXPECT_THROW(tb.update(0, TEST_TASK), out_of_range);
 }
 
 TEST_F(task_base_test, update_with_oveflow_task_size)
@@ -134,7 +139,7 @@ TEST_F(task_base_test, update_with_oveflow_task_size)
     task_base tb(1024, 10);
     const auto id = tb.add(TEST_TASK);
     const std::string overflow_text(tb.max_task_size() + 1, 'c');
-    EXPECT_THROW(tb.update(id, overflow_text), std::out_of_range);
+    EXPECT_THROW(tb.update(id, overflow_text), out_of_range);
 }
 
 TEST_F(task_base_test, update_change_task_text)
@@ -142,16 +147,9 @@ TEST_F(task_base_test, update_change_task_text)
     task_base tb(1024, 10);
     const auto id = tb.add(TEST_TASK);
     tb.update(id, TEST_TASK_1);
-    EXPECT_EQ(TEST_TASK_1, tb.get(id));
+    const auto res = tb.get(id);
+    EXPECT_EQ(TEST_TASK_1, res.first);
 }
-
-//TEST_F(task_base_test, update_removed_task_throw)
-//{
-//    task_base tb(1024, 10);
-//    const auto id = tb.add(TEST_TASK);
-//    tb.remove(id);
-//    EXPECT_THROW(tb.update(id, TEST_TASK_1), std::invalid_argument);
-//}
 
 TEST_F(task_base_test, serialize_create_file)
 {
@@ -179,14 +177,39 @@ TEST_F(task_base_test, serialize_deserialize)
     EXPECT_EQ(1024, tb.max_task_size());
     EXPECT_EQ(10, tb.capacity());
     EXPECT_EQ(2, tb.size());
-    EXPECT_EQ(TEST_TASK, tb.get(0));
-    EXPECT_EQ(TEST_TASK_1, tb.get(1));
+    EXPECT_EQ(TEST_TASK, tb.get(0).first);
+    EXPECT_EQ(TEST_TASK_1, tb.get(1).first);
 }
 
 TEST_F(task_base_test, deserialize_from_nonexistent_path)
 {
     task_base tb;
-    EXPECT_THROW(tb.deserialize("nonexistent_path.db"), std::invalid_argument);
+    EXPECT_THROW(tb.deserialize("nonexistent_path.db"), invalid_argument);
+}
+
+TEST_F(task_base_test, swap_check)
+{
+    task_base a(100, 10);
+    a.add(TEST_TASK);
+
+    task_base b(200, 20);
+    b.add(TEST_TASK_1);
+    b.add(TEST_TASK_1);
+    b.update(0, true);
+
+    a.swap(b);
+
+    EXPECT_EQ(200, a.max_task_size());
+    EXPECT_EQ(20, a.capacity());
+    EXPECT_EQ(2, a.size());
+    EXPECT_EQ(TEST_TASK_1, a.get(0).first);
+    EXPECT_TRUE(a.get(0).second);
+    EXPECT_EQ(TEST_TASK_1, a.get(1).first);
+
+    EXPECT_EQ(100, b.max_task_size());
+    EXPECT_EQ(10, b.capacity());
+    EXPECT_EQ(1, b.size());
+    EXPECT_EQ(TEST_TASK, b.get(0).first);
 }
 
 } // namespace

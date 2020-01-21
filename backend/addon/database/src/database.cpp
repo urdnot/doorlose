@@ -33,7 +33,7 @@ database::database()
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
         groups_.emplace_back(
-            std::make_unique<detail::choise_base>(START_MASK_SIZE, MASK_GRANULARITY, CLIENT_GRANULARITY),
+            std::make_unique<detail::choise_base>(MASK_GRANULARITY, CLIENT_GRANULARITY),
             std::make_unique<detail::task_base>(MAX_TASK_SIZE, TASK_GRANULARITY)
         );
     }

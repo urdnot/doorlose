@@ -28,8 +28,7 @@ choise_base::choise_base()
 {
 }
 
-choise_base::choise_base(const std::uint64_t start_mask_size,
-    std::uint64_t mask_granularity, const std::uint64_t record_granularity)
+choise_base::choise_base(std::uint64_t mask_granularity, const std::uint64_t record_granularity)
 {
     //
     // Checks
@@ -41,10 +40,9 @@ choise_base::choise_base(const std::uint64_t start_mask_size,
     //
     // Inits
     //
-    mask_size_ = start_mask_size;
+    mask_size_ = 0;
     mask_granularity_ = mask_granularity;
-    mask_capacity_ = (start_mask_size / mask_granularity +
-        (start_mask_size % mask_granularity) ? 1 : 0) * mask_granularity;
+    mask_capacity_ = mask_granularity;
     record_size_ = 0;
     record_granularity_ = record_granularity;
     record_capacity_ = record_granularity;
@@ -166,7 +164,6 @@ void choise_base::deserialize(const std::filesystem::path &from)
     //
     // Checks
     //
-    
     check_non_zero(header.mask_granularity, "`mask_granularity` should be positive number");
     check_non_zero(header.record_granularity, "`record_granularity` should be positive number");
     check_mult(header.mask_granularity, 64, "`mask_granularity` should be multiple by 64");

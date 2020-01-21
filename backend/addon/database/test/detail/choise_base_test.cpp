@@ -32,39 +32,39 @@ TEST_F(choise_base_test, empty_ctor)
 
 TEST_F(choise_base_test, ctor_base_initialize_check)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
 
     EXPECT_EQ(0, cb.size());
     EXPECT_EQ(10, cb.capacity());
-    EXPECT_EQ(13, cb.mask_size());
+    EXPECT_EQ(0, cb.mask_size());
     EXPECT_EQ(64, cb.mask_capacity());
 }
 
 TEST_F(choise_base_test, invalid_mask_granularity)
 {
-    EXPECT_THROW(choise_base cb(13, 65, 10), invalid_argument);
+    EXPECT_THROW(choise_base cb(65, 10), invalid_argument);
 }
 
 TEST_F(choise_base_test, zero_mask_granularity)
 {
-    EXPECT_THROW(choise_base cb(13, 0, 10), invalid_argument);
+    EXPECT_THROW(choise_base cb(0, 10), invalid_argument);
 }
 
 TEST_F(choise_base_test, zero_granularity)
 {
-    EXPECT_THROW(choise_base cb(13, 64, 0), invalid_argument);
+    EXPECT_THROW(choise_base cb(64, 0), invalid_argument);
 }
 
 TEST_F(choise_base_test, add_client_adds_to_the_end)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
     EXPECT_EQ(0, cb.add());
     EXPECT_EQ(1, cb.add());
 }
 
 TEST_F(choise_base_test, add_client_change_size)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
 
     EXPECT_EQ(0, cb.size());
     EXPECT_EQ(10, cb.capacity());
@@ -75,7 +75,7 @@ TEST_F(choise_base_test, add_client_change_size)
 
 TEST_F(choise_base_test, add_client_more_capacity_increase_capacity)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
 
     EXPECT_EQ(0, cb.size());
     EXPECT_EQ(10, cb.capacity());
@@ -90,7 +90,7 @@ TEST_F(choise_base_test, add_client_more_capacity_increase_capacity)
 
 TEST_F(choise_base_test, rollback_add_check)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
 
     cb.add();
     EXPECT_EQ(1, cb.size());
@@ -102,7 +102,9 @@ TEST_F(choise_base_test, rollback_add_check)
 TEST_F(choise_base_test, choose_task_index)
 {
     const std::uint64_t TASK_COUNT = 13;
-    choise_base cb(TASK_COUNT, 64, 10);
+    choise_base cb(64, 10);
+    cb.increase_mask(TASK_COUNT);
+
     const auto client_id = cb.add();
     std::vector<std::uint64_t> generated;
     for (std::uint64_t i = 0; i < TASK_COUNT; ++i)
@@ -129,7 +131,9 @@ TEST_F(choise_base_test, choose_task_index)
 TEST_F(choise_base_test, choose_task_cyclic)
 {
     const std::uint64_t TASK_COUNT = 13;
-    choise_base cb(TASK_COUNT, 64, 10);
+    choise_base cb(64, 10);
+    cb.increase_mask(TASK_COUNT);
+
     const auto client_id = cb.add();
     for (std::uint64_t i = 0; i < TASK_COUNT; ++i)
     {
@@ -160,22 +164,23 @@ TEST_F(choise_base_test, choose_task_cyclic)
 
 TEST_F(choise_base_test, choose_task_client_id_out_of_range)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
     EXPECT_EQ(0, cb.size());
     EXPECT_THROW(cb.choose(1), out_of_range);
 }
 
 TEST_F(choise_base_test, increase_mask_change_mask_size)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
+    EXPECT_EQ(0, cb.mask_size());
+    cb.increase_mask(13);
     EXPECT_EQ(13, cb.mask_size());
-    cb.increase_mask(2);
-    EXPECT_EQ(15, cb.mask_size());
 }
 
 TEST_F(choise_base_test, increase_mask_more_capacity_change_mask_capacity)
 {
-    choise_base cb(63, 64, 10);
+    choise_base cb(64, 10);
+    cb.increase_mask(63);
     EXPECT_EQ(63, cb.mask_size());
     EXPECT_EQ(64, cb.mask_capacity());
     cb.increase_mask(1);
@@ -188,18 +193,19 @@ TEST_F(choise_base_test, increase_mask_more_capacity_change_mask_capacity)
 
 TEST_F(choise_base_test, rollback_increase_mask_check)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
     cb.increase_mask(5);
-    EXPECT_EQ(18, cb.mask_size());
+    EXPECT_EQ(5, cb.mask_size());
     cb.rollback_increase_mask();
-    EXPECT_EQ(13, cb.mask_size());
+    EXPECT_EQ(0, cb.mask_size());
 }
 
 TEST_F(choise_base_test, serialize_create_file)
 {
-    choise_base cb(13, 64, 10);
+    choise_base cb(64, 10);
     const auto id1 = cb.add();
     const auto id2 = cb.add();
+    cb.increase_mask(2);
     cb.choose(id1);
     cb.choose(id2);
 
@@ -212,7 +218,8 @@ TEST_F(choise_base_test, serialize_deserialize)
     std::vector<std::uint64_t> expected;
     std::uint64_t client_id;
     {
-        choise_base cb(32, 64, 10);
+        choise_base cb(64, 10);
+        cb.increase_mask(32);
 
         client_id = cb.add();
         for (std::uint64_t i = 0; i < 16; ++i)
@@ -250,10 +257,10 @@ TEST_F(choise_base_test, deserialize_from_nonexistent_path)
 
 TEST_F(choise_base_test, swap_check)
 {
-    choise_base a(10, 64, 10);
+    choise_base a(64, 10);
     a.add();
 
-    choise_base b(20, 128, 20);
+    choise_base b(128, 20);
     b.add();
     b.add();
 
@@ -261,12 +268,10 @@ TEST_F(choise_base_test, swap_check)
 
     EXPECT_EQ(2, a.size());
     EXPECT_EQ(20, a.capacity());
-    EXPECT_EQ(20, a.mask_size());
     EXPECT_EQ(128, a.mask_capacity());
 
     EXPECT_EQ(1, b.size());
     EXPECT_EQ(10, b.capacity());
-    EXPECT_EQ(10, b.mask_size());
     EXPECT_EQ(64, b.mask_capacity());
 }
 

@@ -24,8 +24,8 @@ public:
     /**
      *
      */
-    explicit choise_base(const std::uint64_t start_mask_size,   ///!!!!!!!!!!!!! must be zero at start
-        std::uint64_t mask_granularity, const std::uint64_t record_granularity);
+    explicit choise_base(std::uint64_t mask_granularity,
+        const std::uint64_t record_granularity);
     
     /**
      *

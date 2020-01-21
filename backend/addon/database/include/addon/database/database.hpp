@@ -93,7 +93,6 @@ private:
 
 private:
     const std::uint64_t GROUPS_COUNT = 6;            // groups
-    const std::uint64_t START_MASK_SIZE = 512;       // bits
     const std::uint64_t MASK_GRANULARITY = 512;      // bits
     const std::uint64_t CLIENT_GRANULARITY = 1000;   // clients
     const std::uint64_t MAX_TASK_SIZE = 4096;        // bytes

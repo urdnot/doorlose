@@ -101,27 +101,27 @@ TEST_F(task_base_test, get_id_out_of_range)
     EXPECT_THROW(tb.get(1), std::out_of_range);
 }
 
-TEST_F(task_base_test, get_removed_task_return_empty_string)
-{
-    task_base tb(1024, 10);
-    const auto id = tb.add(TEST_TASK);
-    EXPECT_NO_THROW(tb.remove(id));
-    EXPECT_EQ("", tb.get(id));
-}
-
-TEST_F(task_base_test, remove_out_of_range)
-{
-    task_base tb(1024, 10);
-    EXPECT_THROW(tb.remove(0), std::out_of_range);
-}
-
-TEST_F(task_base_test, remove_do_not_change_size)
-{
-    task_base tb(1024, 10);
-    const auto id = tb.add(TEST_TASK);
-    tb.remove(id);
-    EXPECT_EQ(1, tb.size());
-}
+//TEST_F(task_base_test, get_removed_task_return_empty_string)
+//{
+//    task_base tb(1024, 10);
+//    const auto id = tb.add(TEST_TASK);
+//    EXPECT_NO_THROW(tb.remove(id));
+//    EXPECT_EQ("", tb.get(id));
+//}
+//
+//TEST_F(task_base_test, remove_out_of_range)
+//{
+//    task_base tb(1024, 10);
+//    EXPECT_THROW(tb.remove(0), std::out_of_range);
+//}
+//
+//TEST_F(task_base_test, remove_do_not_change_size)
+//{
+//    task_base tb(1024, 10);
+//    const auto id = tb.add(TEST_TASK);
+//    tb.remove(id);
+//    EXPECT_EQ(1, tb.size());
+//}
 
 TEST_F(task_base_test, update_out_of_range)
 {
@@ -145,13 +145,13 @@ TEST_F(task_base_test, update_change_task_text)
     EXPECT_EQ(TEST_TASK_1, tb.get(id));
 }
 
-TEST_F(task_base_test, update_removed_task_throw)
-{
-    task_base tb(1024, 10);
-    const auto id = tb.add(TEST_TASK);
-    tb.remove(id);
-    EXPECT_THROW(tb.update(id, TEST_TASK_1), std::invalid_argument);
-}
+//TEST_F(task_base_test, update_removed_task_throw)
+//{
+//    task_base tb(1024, 10);
+//    const auto id = tb.add(TEST_TASK);
+//    tb.remove(id);
+//    EXPECT_THROW(tb.update(id, TEST_TASK_1), std::invalid_argument);
+//}
 
 TEST_F(task_base_test, serialize_create_file)
 {

@@ -32,12 +32,10 @@ database::database()
     //
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
-        group_t group;
-        group.choises =
-            std::make_unique<detail::choise_base>(START_MASK_SIZE, MASK_GRANULARITY, CLIENT_GRANULARITY);
-        group.tasks =
-            std::make_unique<detail::task_base>(MAX_TASK_SIZE, TASK_GRANULARITY);
-        groups_.push_back(group);
+        groups_.emplace_back(
+            std::make_unique<detail::choise_base>(START_MASK_SIZE, MASK_GRANULARITY, CLIENT_GRANULARITY),
+            std::make_unique<detail::task_base>(MAX_TASK_SIZE, TASK_GRANULARITY)
+        );
     }
 }
 
@@ -67,7 +65,7 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
     {
         try
         {
-            clients_.push_back(client_record_t());
+            clients_.emplace_back();
         }
         catch (...)
         {
@@ -249,6 +247,7 @@ void database::deserialize(const std::filesystem::path &from_folder)
     std::vector<detail::task_base> tasks_swap;
     std::vector<detail::choise_base> choises_swap;
 
+    clients_swap.resize(header.clients_count);
     for (std::uint64_t i = 0; i < header.clients_count; ++i)
     {
         input.read(reinterpret_cast<char *>(&clients_swap[i].last_active), sizeof(std::time_t));
@@ -257,9 +256,9 @@ void database::deserialize(const std::filesystem::path &from_folder)
 
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
-        tasks_swap.push_back(detail::task_base());
+        tasks_swap.emplace_back();
         tasks_swap.back().deserialize(from_folder / TASKS_FILE);
-        choises_swap.push_back(detail::choise_base());
+        choises_swap.emplace_back();
         choises_swap.back().deserialize(from_folder / CHOISES_FILE);
     }
 

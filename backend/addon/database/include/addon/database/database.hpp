@@ -76,6 +76,12 @@ private:
 
     struct group_t
     {
+        group_t(std::unique_ptr<detail::choise_base> &&ch, std::unique_ptr<detail::task_base> &&tsk)
+            : choises(std::move(ch))
+            , tasks(std::move(tsk))
+        {
+        }
+
         std::unique_ptr<detail::choise_base> choises;
         std::unique_ptr<detail::task_base> tasks;
     };

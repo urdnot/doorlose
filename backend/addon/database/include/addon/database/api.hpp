@@ -13,7 +13,5 @@ enum status_t : std::uint8_t
     LOST_MESSAGE,
 };
 
-get_task()
-
 } // namespace database
 } // namespace addon

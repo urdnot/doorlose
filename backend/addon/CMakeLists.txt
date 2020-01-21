@@ -22,6 +22,8 @@ add_compile_options(
     /wd4200
     # 'A' needs to have dll-interface to be used by clients of class 'B'
     /wd4251
+    # non DLL-interface class 'A' used as base for DLL-interface class 'B'
+    /wd4275
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

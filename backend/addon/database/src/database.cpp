@@ -12,7 +12,7 @@ namespace addon {
 namespace database {
 namespace {
 
-struct serialization_header_t
+struct client_header_t
 {
     std::uint64_t clients_count;
 };
@@ -56,10 +56,7 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
         throw invalid_argument("database::get_task(): Client id out of range");
     }
 
-    if (group_id >= groups_.size())
-    {
-        throw invalid_argument("database::get_task(): Group id out of range");
-    }
+    check_limit(group_id, groups_.size(), "database::get_task(): Group id out of range");
 
     if (client_id == UNDEFINED_CLIENT_ID)
     {
@@ -122,15 +119,20 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
 /**
  *
  */
+std::uint64_t database::task_count(std::uint64_t group_id) const
+{
+    std::unique_lock lock(base_mtx_);
+    check_limit(group_id, groups_.size(), "database::task_count(): Group id out of range");
+    return groups_[group_id].tasks->size();
+}
+
+/**
+ *
+ */
 std::pair<std::string_view, bool> database::examine_task(std::uint64_t group_id, std::uint64_t task_id) const
 {
-    std::shared_lock lock(base_mtx_);
-
-    if (group_id >= groups_.size())
-    {
-        throw invalid_argument("database::examine_task(): Group id out of range");
-    }
-
+    std::unique_lock lock(base_mtx_);
+    check_limit(group_id, groups_.size(), "database::examine_count(): Group id out of range");
     return groups_[group_id].tasks->get(task_id);
 }
 
@@ -141,12 +143,7 @@ void database::update_task(std::uint64_t group_id, std::uint64_t task_id,
     bool removed)
 {
     std::unique_lock lock(base_mtx_);
-
-    if (group_id >= groups_.size())
-    {
-        throw invalid_argument("database::update_task(): Group id out of range");
-    }
-
+    check_limit(group_id, groups_.size(), "database::update_task(): Group id out of range");
     groups_[group_id].tasks->update(task_id, removed);
 }
 
@@ -157,12 +154,7 @@ void database::update_task(
     std::uint64_t group_id, std::uint64_t task_id, std::string_view task)
 {
     std::unique_lock lock(base_mtx_);
-
-    if (group_id >= groups_.size())
-    {
-        throw invalid_argument("database::update_task(): Group id out of range");
-    }
-
+    check_limit(group_id, groups_.size(), "database::update_task(): Group id out of range");
     groups_[group_id].tasks->update(task_id, task);
 }
 
@@ -172,6 +164,7 @@ void database::update_task(
 void database::add_task(std::uint64_t group_id, std::string_view task)
 {
     std::unique_lock lock(base_mtx_);
+    check_limit(group_id, groups_.size(), "database::add_task(): Group id out of range");
 
     try
     {
@@ -206,10 +199,10 @@ void database::serialize(const std::filesystem::path &to_folder) const
 
     check_ostream(output, "database::serialize():  cannot open clients output file for serialize");
 
-    serialization_header_t header;
+    client_header_t header;
     header.clients_count = clients_.size();
 
-    output.write(reinterpret_cast<const char *>(&header), sizeof(serialization_header_t));
+    output.write(reinterpret_cast<const char *>(&header), sizeof(client_header_t));
     check_ostream(output, "database::serialize(): cannot serialize header");
 
     for (std::uint64_t i = 0; i < clients_.size(); ++i)
@@ -240,8 +233,8 @@ void database::deserialize(const std::filesystem::path &from_folder)
     std::ifstream input(from_folder / CLIENTS_FILE, std::ios_base::binary);
     check_istream(input, "database::deserialize(): cannot open clients file for deserialize");
 
-    serialization_header_t header;
-    input.read(reinterpret_cast<char *>(&header), sizeof(serialization_header_t));
+    client_header_t header;
+    input.read(reinterpret_cast<char *>(&header), sizeof(client_header_t));
     check_istream(input, "database::deserialize(): cannot deserialize header");
 
     std::vector<client_record_t> clients_swap;
@@ -257,10 +250,12 @@ void database::deserialize(const std::filesystem::path &from_folder)
 
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
+        const std::string task_db = std::to_string(i) + "-" + TASKS_FILE;
+        const std::string choise_db = std::to_string(i) + "-" + CHOISES_FILE;
         tasks_swap.emplace_back();
-        tasks_swap.back().deserialize(from_folder / TASKS_FILE);
+        tasks_swap.back().deserialize(from_folder / task_db);
         choises_swap.emplace_back();
-        choises_swap.back().deserialize(from_folder / CHOISES_FILE);
+        choises_swap.back().deserialize(from_folder / choise_db);
     }
 
     clients_.swap(clients_swap);

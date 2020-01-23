@@ -72,6 +72,26 @@ TEST_F(database_test, get_task_except_removed)
     EXPECT_EQ(TEST_TASK_1, res2.second);
 }
 
+TEST_F(database_test, task_count_group_id_out_of_range)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    EXPECT_THROW(db.task_count(10), invalid_argument);
+}
+
+TEST_F(database_test, task_count_check)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    db.update_task(0, 0, true);
+    db.add_task(0, TEST_TASK);
+
+    db.add_task(1, TEST_TASK_1);
+    
+    EXPECT_EQ(2, db.task_count(0));
+    EXPECT_EQ(1, db.task_count(1));
+}
+
 TEST_F(database_test, examine_task_group_id_out_of_range)
 {
     database db;
@@ -93,6 +113,130 @@ TEST_F(database_test, examine_task_check_all_cases)
     const auto res1 = db.examine_task(0, 1);
     EXPECT_EQ(TEST_TASK_1, res1.first);
     EXPECT_FALSE(res1.second);
+}
+
+TEST_F(database_test, update_task_group_id_out_of_range_remove_overload)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    EXPECT_THROW(db.update_task(10, 0, true), invalid_argument);
+}
+
+TEST_F(database_test, update_task_remove_task_usage)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    db.update_task(0, 0, true);
+    const auto res = db.examine_task(0, 0);
+    EXPECT_EQ(TEST_TASK, res.first);
+    EXPECT_TRUE(res.second);
+    db.update_task(0, 0, false);
+    const auto res1 = db.examine_task(0, 0);
+    EXPECT_EQ(TEST_TASK, res1.first);
+    EXPECT_FALSE(res1.second);
+}
+
+TEST_F(database_test, update_task_group_id_out_of_range_update_overload)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    EXPECT_THROW(db.update_task(10, 0, TEST_TASK_1), invalid_argument);
+}
+
+TEST_F(database_test, update_task_change_text)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    db.update_task(0, 0, TEST_TASK_1);
+    const auto res = db.examine_task(0, 0);
+    EXPECT_EQ(TEST_TASK_1, res.first);
+    EXPECT_FALSE(res.second);
+}
+
+TEST_F(database_test, add_task_group_id_out_of_range)
+{
+    database db;
+    EXPECT_THROW(db.add_task(10, TEST_TASK), invalid_argument);
+}
+
+TEST_F(database_test, add_task_check)
+{
+    database db;
+    db.add_task(0, TEST_TASK);
+    const auto res = db.get_task(database::UNDEFINED_CLIENT_ID, 0);
+    EXPECT_EQ(TEST_TASK, res.second);
+}
+
+TEST_F(database_test, serialize_create_folder_and_files)
+{
+    const std::uint64_t GROUPS_COUNT = 6;
+    database db;
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        db.add_task(i, TEST_TASK);
+        db.add_task(i, TEST_TASK_1);
+    }
+
+    std::vector<std::pair<std::uint64_t, std::string_view>> res;
+
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        res.push_back(db.get_task(database::UNDEFINED_CLIENT_ID, i));
+    }
+
+    db.serialize(TEST_FOLDER_PATH);
+    EXPECT_TRUE(std::filesystem::exists(TEST_FOLDER_PATH));
+    EXPECT_TRUE(std::filesystem::exists(TEST_FOLDER_PATH / "clients.db"));
+
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        const std::string choise_db = std::to_string(i) + "-choises.db";
+        const std::string task_db = std::to_string(i) + "-tasks.db";
+        EXPECT_TRUE(std::filesystem::exists(TEST_FOLDER_PATH / choise_db));
+        EXPECT_TRUE(std::filesystem::exists(TEST_FOLDER_PATH / task_db));
+    }
+}
+
+TEST_F(database_test, serialize_deserialize)
+{
+    const std::uint64_t GROUPS_COUNT = 6;
+    database db;
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        db.add_task(i, TEST_TASK);
+        db.add_task(i, TEST_TASK_1);
+    }
+
+    std::vector<std::pair<std::uint64_t, std::string>> res;
+
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        const auto tmp = db.get_task(database::UNDEFINED_CLIENT_ID, i);
+        res.emplace_back(tmp.first, tmp.second);
+    }
+
+    db.serialize(TEST_FOLDER_PATH);
+    db.deserialize(TEST_FOLDER_PATH);
+
+    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    {
+        const auto result = db.get_task(res[i].first, i);
+
+        if (res[i].second == TEST_TASK_1)
+        {
+            EXPECT_EQ(TEST_TASK, result.second);
+        }
+        else
+        {
+            EXPECT_EQ(TEST_TASK_1, result.second);
+        }
+    }
+}
+
+TEST_F(database_test, deserialize_from_invalid_serialization)
+{
+    database db;
+    EXPECT_THROW(db.deserialize("nonexistent_path"), invalid_argument);
 }
 
 } // namespace

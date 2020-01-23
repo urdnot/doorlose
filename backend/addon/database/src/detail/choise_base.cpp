@@ -12,7 +12,7 @@ namespace database {
 namespace detail {
 namespace {
 
-struct serialization_header_t
+struct choise_header_t
 {
     std::uint64_t mask_size;
     std::uint64_t mask_granularity;
@@ -128,7 +128,7 @@ void choise_base::serialize(const std::filesystem::path &to) const
 
     check_ostream(output, "choise_base::serialize(): cannot open output file for serialize");
 
-    serialization_header_t header;
+    choise_header_t header;
     header.mask_size = mask_size_;
     header.mask_granularity = mask_granularity_;
     header.mask_capacity = mask_capacity_;
@@ -136,7 +136,7 @@ void choise_base::serialize(const std::filesystem::path &to) const
     header.record_granularity = record_granularity_;
     header.record_capacity = record_capacity_;
 
-    output.write(reinterpret_cast<const char *>(&header), sizeof(serialization_header_t));
+    output.write(reinterpret_cast<const char *>(&header), sizeof(choise_header_t));
     check_ostream(output, "choise_base::serialize(): cannot serialize header");
 
     for (std::uint64_t i = 0; i < record_size_; ++i)
@@ -157,8 +157,8 @@ void choise_base::deserialize(const std::filesystem::path &from)
 
     check_istream(input, "choise_base::deserialize(): cannot open input file for deserialize");
 
-    serialization_header_t header;
-    input.read(reinterpret_cast<char *>(&header), sizeof(serialization_header_t));
+    choise_header_t header;
+    input.read(reinterpret_cast<char *>(&header), sizeof(choise_header_t));
     check_istream(input, "choise_base::deserialize(): cannot deserialize header");
 
     //

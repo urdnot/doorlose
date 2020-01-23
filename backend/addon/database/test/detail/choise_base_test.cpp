@@ -166,7 +166,7 @@ TEST_F(choise_base_test, choose_task_client_id_out_of_range)
 {
     choise_base cb(64, 10);
     EXPECT_EQ(0, cb.size());
-    EXPECT_THROW(cb.choose(1), out_of_range);
+    EXPECT_THROW(cb.choose(1), invalid_argument);
 }
 
 TEST_F(choise_base_test, increase_mask_change_mask_size)

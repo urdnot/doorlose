@@ -25,7 +25,7 @@ void check_limit(std::uint64_t value, std::uint64_t limit,
 {
     if (value >= limit)
     {
-        throw out_of_range(error_msg.data());
+        throw invalid_argument(error_msg.data());
     }
 }
 

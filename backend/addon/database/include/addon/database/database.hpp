@@ -39,6 +39,11 @@ public:
     /**
      *
      */
+    std::uint64_t task_count(std::uint64_t group_id) const;
+
+    /**
+     *
+     */
     std::pair<std::string_view, bool> examine_task(std::uint64_t group_id,
         std::uint64_t task_id) const;
 

@@ -95,13 +95,13 @@ TEST_F(task_base_test, add_with_overflow_size)
 {
     task_base tb(1024, 10);
     const std::string overflow_text(tb.max_task_size() + 1, 'c');
-    EXPECT_THROW(tb.add(overflow_text), out_of_range);
+    EXPECT_THROW(tb.add(overflow_text), invalid_argument);
 }
 
-TEST_F(task_base_test, get_id_out_of_range)
+TEST_F(task_base_test, get_task_id_out_of_range)
 {
     task_base tb(1024, 10);
-    EXPECT_THROW(tb.get(1), out_of_range);
+    EXPECT_THROW(tb.get(1), invalid_argument);
 }
 
 TEST_F(task_base_test, get_removed_task)
@@ -114,13 +114,13 @@ TEST_F(task_base_test, get_removed_task)
     EXPECT_TRUE(res.second);
 }
 
-TEST_F(task_base_test, remove_out_of_range)
+TEST_F(task_base_test, update_remove_overload_out_of_range)
 {
     task_base tb(1024, 10);
-    EXPECT_THROW(tb.update(0, true), out_of_range);
+    EXPECT_THROW(tb.update(0, true), invalid_argument);
 }
 
-TEST_F(task_base_test, remove_do_not_change_size)
+TEST_F(task_base_test, update_remove_overload_do_not_change_size)
 {
     task_base tb(1024, 10);
     const auto id = tb.add(TEST_TASK);
@@ -128,10 +128,10 @@ TEST_F(task_base_test, remove_do_not_change_size)
     EXPECT_EQ(1, tb.size());
 }
 
-TEST_F(task_base_test, update_out_of_range)
+TEST_F(task_base_test, update_text_overload_out_of_range)
 {
     task_base tb(1024, 10);
-    EXPECT_THROW(tb.update(0, TEST_TASK), out_of_range);
+    EXPECT_THROW(tb.update(0, TEST_TASK), invalid_argument);
 }
 
 TEST_F(task_base_test, update_with_oveflow_task_size)
@@ -139,7 +139,7 @@ TEST_F(task_base_test, update_with_oveflow_task_size)
     task_base tb(1024, 10);
     const auto id = tb.add(TEST_TASK);
     const std::string overflow_text(tb.max_task_size() + 1, 'c');
-    EXPECT_THROW(tb.update(id, overflow_text), out_of_range);
+    EXPECT_THROW(tb.update(id, overflow_text), invalid_argument);
 }
 
 TEST_F(task_base_test, update_change_task_text)

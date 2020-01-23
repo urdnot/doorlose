@@ -18,7 +18,7 @@ struct task_entry_t
     std::uint8_t body[];
 };
 
-struct serialization_header_t
+struct task_header_t
 {
     std::uint64_t max_task_size;
     std::uint64_t task_count;
@@ -138,13 +138,13 @@ void task_base::serialize(const std::filesystem::path &to) const
 
     check_ostream(output, "task_base::serialize(): cannot open output file for serialize");
 
-    serialization_header_t header;
+    task_header_t header;
     header.max_task_size = max_task_size_;
     header.task_count = task_count_;
     header.granularity = granularity_;
     header.capacity = capacity_;
 
-    output.write(reinterpret_cast<const char *>(&header), sizeof(serialization_header_t));
+    output.write(reinterpret_cast<const char *>(&header), sizeof(task_header_t));
     check_ostream(output, "task_base::serialize(): cannot serialize header");
 
     for (std::uint64_t i = 0; i < task_count_; ++i)
@@ -167,8 +167,8 @@ void task_base::deserialize(const std::filesystem::path &from)
 
     check_istream(input, "task_base::deserialize(): cannot open input file for deserialize");
 
-    serialization_header_t header;
-    input.read(reinterpret_cast<char *>(&header), sizeof(serialization_header_t));
+    task_header_t header;
+    input.read(reinterpret_cast<char *>(&header), sizeof(task_header_t));
     check_istream(input, "task_base::deserialize(): cannot deserialize header");
 
     //

@@ -33,15 +33,6 @@ public:
     }
 };
 
-class ADDON_DATABASE_EXPORT out_of_range : public exception
-{
-public:
-    explicit out_of_range(const char *msg)
-        : exception(msg)
-    {
-    }
-};
-
 class ADDON_DATABASE_EXPORT runtime_error : public exception
 {
 public:

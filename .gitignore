@@ -1,9 +1,11 @@
-bin/
+artifacts/
 build/
+out/
 node_modules/
-backend/external/*
-!backend/external/readme.txt
-!backend/external/build_gtest.bat
-!backend/external/build_boost.bat
+backend/addon/external/*
+!backend/addon/external/readme.txt
+!backend/addon/external/build_gtest.bat
+!backend/addon/external/build_boost.bat
 backend/node_modules/
+*-lock.json
 *.patch

@@ -5,6 +5,13 @@ if (CMAKE_JS_VERSION)
     set (CMAKE_CXX_STANDARD 11)
 
     project(backend)
+    
+    set(configuration_suffix "$<CONFIG>")
+    set(ARTIFACTS_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/../artifacts/backend")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/lib)
+    
     #include_directories(${CMAKE_JS_INC})
     file(GLOB SOURCE_FILES "backend.cpp")
     add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
@@ -18,7 +25,7 @@ if (CMAKE_JS_VERSION)
     target_link_libraries(${PROJECT_NAME}
         PRIVATE
             ${CMAKE_JS_LIB}
-            "D:/Work/doorlose/build/Release/addon_database.dll"
+            ${ARTIFACTS_OUTPUT_DIR}/addon/${configuration_suffix}/lib/addon_database.lib
     )
 
     # Include N-API wrappers
@@ -35,18 +42,25 @@ if (CMAKE_JS_VERSION)
 
     # define NPI_VERSION
     add_definitions(-DNAPI_VERSION=3)
+
+    add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.node
+            ${CMAKE_CURRENT_SOURCE_DIR}/../out/${configuration_suffix}/${PROJECT_NAME}.node
+    )
+    
 else()
-project (backend)
+    project (backend)
     file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/../build)
-    file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/../build/backend)
 
     file(GLOB node_src ./*.cpp ./*.json)
     
     source_group("src" ${node_src})
     
-    add_custom_target(doorlose_backend 
+    add_custom_target(backend
         COMMAND
-            cmake-js build --directory ${CMAKE_SOURCE_DIR} --out ${CMAKE_SOURCE_DIR}/../build/backend $<$<CONFIG:Debug>:--debug>
+            cmake-js build --directory ${CMAKE_SOURCE_DIR} --out ${CMAKE_SOURCE_DIR}/../build $<$<CONFIG:Debug>:--debug>
         SOURCES
             ${node_src}
     )

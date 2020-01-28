@@ -34,7 +34,7 @@ set_target_properties(addon_database
         FOLDER addon
 )
 
-add_dependencies(doorlose_backend copy_addon_binaries)
+add_dependencies(backend copy_thirdparty)
 
 #############################################################
 # Database tests
@@ -47,7 +47,7 @@ source_group("test" FILES ${db_test})
 source_group("test\\detail" FILES ${db_test_detail})
 
 add_executable(addon_database_test ${db_test} ${db_test_detail})
-add_dependencies(copy_addon_binaries addon_database_test)
+add_dependencies(addon_database_test copy_thirdparty)
 
 target_link_libraries(addon_database_test
     PRIVATE

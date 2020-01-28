@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHc /std:c++latest")
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Debug and Release configurations" FORCE)
 
-set(THIRDPARTY_ROOT "${CMAKE_SOURCE_DIR}/external")
+set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/external")
 list(APPEND CMAKE_PREFIX_PATH ${THIRDPARTY_ROOT})
 list(APPEND CMAKE_FIND_ROOT_PATH ${THIRDPARTY_ROOT})
 list(APPEND CMAKE_PREFIX_PATH ${THIRDPARTY_ROOT}/Debug)
@@ -26,20 +26,21 @@ add_compile_options(
     /wd4275
 )
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
 set(configuration_suffix "$<CONFIG>")
-set(source_dir ${THIRDPARTY_ROOT}/${configuration_suffix}/bin)
-set(target_dir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${configuration_suffix})
+set(ARTIFACTS_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/../artifacts/backend/addon")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/lib)
 
-add_custom_target(copy_addon_binaries ALL ${CMAKE_COMMAND} -E copy_directory
+set(source_dir ${THIRDPARTY_ROOT}/${configuration_suffix}/bin)
+set(target_dir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_custom_target(copy_thirdparty ALL ${CMAKE_COMMAND} -E copy_directory
     ${source_dir}
     ${target_dir}
 )
 
-set_target_properties(copy_addon_binaries
+set_target_properties(copy_thirdparty
     PROPERTIES
         FOLDER addon
 )

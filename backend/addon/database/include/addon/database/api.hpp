@@ -13,5 +13,9 @@ enum status_t : std::uint8_t
     LOST_MESSAGE,
 };
 
+ADDON_DATABASE_EXPORT std::string make_hello_world(std::string hello);
+
+ADDON_DATABASE_EXPORT std::string foo(std::uint64_t id);
+
 } // namespace database
 } // namespace addon

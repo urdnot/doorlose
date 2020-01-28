@@ -5,11 +5,5 @@
   "main": "main.js",
   "private": true,
   "dependencies": {
-    "bindings": "~1.2.1",
-    "backend": "0.0.0"
-  },
-  "scripts": {
-    "install": "npm install"
-    "test": "node main.js"
   }
 }

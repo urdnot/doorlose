@@ -5,11 +5,21 @@ if (CMAKE_JS_VERSION)
     set (CMAKE_CXX_STANDARD 11)
 
     project(backend)
-    include_directories(${CMAKE_JS_INC})
+    #include_directories(${CMAKE_JS_INC})
     file(GLOB SOURCE_FILES "backend.cpp")
     add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
-    target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+    target_include_directories(${PROJECT_NAME}
+        PUBLIC
+            ${CMAKE_JS_INC}
+            ${CMAKE_CURRENT_SOURCE_DIR}/addon/database/include
+    )
+    
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            ${CMAKE_JS_LIB}
+            "D:/Work/doorlose/build/Release/addon_database.dll"
+    )
 
     # Include N-API wrappers
     execute_process(COMMAND node -p "require('node-addon-api').include"
@@ -18,7 +28,10 @@ if (CMAKE_JS_VERSION)
             )
     string(REPLACE "\n" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
     string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
-    target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
+    target_include_directories(${PROJECT_NAME}
+        PRIVATE
+            ${NODE_ADDON_API_DIR}
+    )
 
     # define NPI_VERSION
     add_definitions(-DNAPI_VERSION=3)

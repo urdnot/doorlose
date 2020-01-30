@@ -28,7 +28,7 @@ public:
     /**
      * Get random task from specified group for specified client
      */
-    std::pair<std::uint64_t, std::string_view> get_task(std::uint64_t client_id,
+    std::pair<std::string_view, std::uint64_t> get_task(std::uint64_t client_id,
         std::uint64_t group_id);
 
 

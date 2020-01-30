@@ -43,16 +43,16 @@ TEST_F(database_test, get_task_from_one_variant)
     database db;
     EXPECT_NO_THROW(db.add_task(0, TEST_TASK));
     const auto res = db.get_task(database::UNDEFINED_CLIENT_ID, 0);
-    EXPECT_EQ(0, res.first);
-    EXPECT_EQ(TEST_TASK, res.second);
+    EXPECT_EQ(TEST_TASK, res.first);
+    EXPECT_EQ(0, res.second);
 
     const auto res1 = db.get_task(0, 0);
-    EXPECT_EQ(0, res1.first);
-    EXPECT_EQ(TEST_TASK, res1.second);
+    EXPECT_EQ(TEST_TASK, res1.first);
+    EXPECT_EQ(0, res1.second);
 
     const auto res2 = db.get_task(database::UNDEFINED_CLIENT_ID, 0);
-    EXPECT_EQ(1, res2.first);
-    EXPECT_EQ(TEST_TASK, res2.second);
+    EXPECT_EQ(TEST_TASK, res2.first);
+    EXPECT_EQ(1, res2.second);
 }
 
 TEST_F(database_test, get_task_except_removed)
@@ -65,11 +65,11 @@ TEST_F(database_test, get_task_except_removed)
     db.update_task(0, 1, true);
 
     const auto res = db.get_task(database::UNDEFINED_CLIENT_ID, 0);
-    EXPECT_EQ(TEST_TASK_1, res.second);
-    const auto res1 = db.get_task(res.first, 0);
-    EXPECT_EQ(TEST_TASK_1, res1.second);
-    const auto res2 = db.get_task(res.first, 0);
-    EXPECT_EQ(TEST_TASK_1, res2.second);
+    EXPECT_EQ(TEST_TASK_1, res.first);
+    const auto res1 = db.get_task(res.second, 0);
+    EXPECT_EQ(TEST_TASK_1, res1.first);
+    const auto res2 = db.get_task(res.second, 0);
+    EXPECT_EQ(TEST_TASK_1, res2.first);
 }
 
 TEST_F(database_test, task_count_group_id_out_of_range)
@@ -164,7 +164,7 @@ TEST_F(database_test, add_task_check)
     database db;
     db.add_task(0, TEST_TASK);
     const auto res = db.get_task(database::UNDEFINED_CLIENT_ID, 0);
-    EXPECT_EQ(TEST_TASK, res.second);
+    EXPECT_EQ(TEST_TASK, res.first);
 }
 
 TEST_F(database_test, serialize_create_folder_and_files)
@@ -177,7 +177,7 @@ TEST_F(database_test, serialize_create_folder_and_files)
         db.add_task(i, TEST_TASK_1);
     }
 
-    std::vector<std::pair<std::uint64_t, std::string_view>> res;
+    std::vector<std::pair<std::string_view, std::uint64_t>> res;
 
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
@@ -207,7 +207,7 @@ TEST_F(database_test, serialize_deserialize)
         db.add_task(i, TEST_TASK_1);
     }
 
-    std::vector<std::pair<std::uint64_t, std::string>> res;
+    std::vector<std::pair<std::string, std::uint64_t>> res;
 
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
@@ -220,15 +220,15 @@ TEST_F(database_test, serialize_deserialize)
 
     for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
     {
-        const auto result = db.get_task(res[i].first, i);
+        const auto result = db.get_task(res[i].second, i);
 
-        if (res[i].second == TEST_TASK_1)
+        if (res[i].first == TEST_TASK_1)
         {
-            EXPECT_EQ(TEST_TASK, result.second);
+            EXPECT_EQ(TEST_TASK, result.first);
         }
         else
         {
-            EXPECT_EQ(TEST_TASK_1, result.second);
+            EXPECT_EQ(TEST_TASK_1, result.first);
         }
     }
 }

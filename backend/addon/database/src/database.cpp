@@ -46,7 +46,7 @@ database::database()
 /**
  * Get random task from specified group for specified client
  */
-std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t client_id,
+std::pair<std::string_view, std::uint64_t> database::get_task(std::uint64_t client_id,
     std::uint64_t group_id)
 {
     std::shared_lock lock(base_mtx_);
@@ -109,7 +109,7 @@ std::pair<std::uint64_t, std::string_view> database::get_task(std::uint64_t clie
             (cur_time != (std::time_t)(-1)) ? cur_time : 0;
     }
 
-    return std::make_pair(client_id, task_record.first);
+    return std::make_pair(task_record.first, client_id);
 }
 
 ///////////////////////////////////////////////////////////////////////////

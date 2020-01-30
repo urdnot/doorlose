@@ -34,6 +34,7 @@ set_target_properties(addon_database
         FOLDER addon
 )
 
+add_dependencies(copy_thirdparty addon_database)
 add_dependencies(backend copy_thirdparty)
 
 #############################################################

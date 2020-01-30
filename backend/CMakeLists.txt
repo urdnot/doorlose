@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.9)
 
+set(configuration_suffix "$<CONFIG>")
+set(ARTIFACTS_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/../artifacts/backend")
+
 if (CMAKE_JS_VERSION)
     cmake_policy(SET CMP0042 NEW)
     set (CMAKE_CXX_STANDARD 11)
 
     project(backend)
     
-    set(configuration_suffix "$<CONFIG>")
-    set(ARTIFACTS_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/../artifacts/backend")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/bin)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/lib)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/lib)
     
-    #include_directories(${CMAKE_JS_INC})
     file(GLOB SOURCE_FILES "backend.cpp")
     add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
@@ -42,13 +42,6 @@ if (CMAKE_JS_VERSION)
 
     # define NPI_VERSION
     add_definitions(-DNAPI_VERSION=3)
-
-    add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.node
-            ${CMAKE_CURRENT_SOURCE_DIR}/../out/${configuration_suffix}/${PROJECT_NAME}.node
-    )
     
 else()
     project (backend)
@@ -58,12 +51,27 @@ else()
     
     source_group("src" ${node_src})
     
-    add_custom_target(backend
+    add_custom_target(${PROJECT_NAME}
         COMMAND
             cmake-js build --directory ${CMAKE_SOURCE_DIR} --out ${CMAKE_SOURCE_DIR}/../build $<$<CONFIG:Debug>:--debug>
         SOURCES
             ${node_src}
     )
+    
+    add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ARTIFACTS_OUTPUT_DIR}/addon/${configuration_suffix}
+            ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}
+    )
+    
+    add_custom_target(install_native_addon
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ARTIFACTS_OUTPUT_DIR}/${configuration_suffix}/bin
+            ${CMAKE_SOURCE_DIR}/../out/${configuration_suffix}
+    )
+    
+    add_dependencies(install_native_addon ${PROJECT_NAME})
     
     add_subdirectory(addon)
 endif()

@@ -15,16 +15,16 @@ list(APPEND CMAKE_FIND_ROOT_PATH ${THIRDPARTY_ROOT}/Debug)
 list(APPEND CMAKE_PREFIX_PATH ${THIRDPARTY_ROOT}/Release)
 list(APPEND CMAKE_FIND_ROOT_PATH ${THIRDPARTY_ROOT}/Release)
 
-add_compile_options(
-    # Treat warnings as errors
-    /WX
-    # nonstandard extension used : zero-sized array in struct/union
-    /wd4200
-    # 'A' needs to have dll-interface to be used by clients of class 'B'
-    /wd4251
-    # non DLL-interface class 'A' used as base for DLL-interface class 'B'
-    /wd4275
-)
+#add_compile_options(
+#    # Treat warnings as errors
+#    /WX
+#    # nonstandard extension used : zero-sized array in struct/union
+#    /wd4200
+#    # 'A' needs to have dll-interface to be used by clients of class 'B'
+#    /wd4251
+#    # non DLL-interface class 'A' used as base for DLL-interface class 'B'
+#    /wd4275
+#)
 
 set(configuration_suffix "$<CONFIG>")
 set(ARTIFACTS_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/../artifacts/backend/addon")

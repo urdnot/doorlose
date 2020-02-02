@@ -59,7 +59,8 @@ if (CMAKE_JS_VERSION)
     )
 
     # define NPI_VERSION
-    add_definitions(-DNAPI_VERSION=3)
+    #add_definitions(-DNAPI_VERSION=3)
+    add_definitions(-DNAPI_EXPERIMENTAL)
     
 else()
     project (backend)

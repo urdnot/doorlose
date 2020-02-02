@@ -14,7 +14,7 @@ namespace {
 
 struct client_header_t
 {
-    std::uint64_t clients_count;
+    uint_t clients_count;
 };
 
 } // namespace
@@ -30,7 +30,7 @@ database::database()
     //
     // Inits
     //
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         groups_.emplace_back(
             std::make_unique<detail::choise_base>(MASK_GRANULARITY, CLIENT_GRANULARITY),
@@ -46,8 +46,7 @@ database::database()
 /**
  * Get random task from specified group for specified client
  */
-std::pair<std::string_view, std::uint64_t> database::get_task(std::uint64_t client_id,
-    std::uint64_t group_id)
+std::pair<std::string_view, uint_t> database::get_task(uint_t client_id, uint_t group_id)
 {
     std::shared_lock lock(base_mtx_);
 
@@ -70,7 +69,7 @@ std::pair<std::string_view, std::uint64_t> database::get_task(std::uint64_t clie
                 "database::get_task(): Memory allocation error during client addition to clients vector");
         }
 
-        for (std::uint64_t i = 0; i < groups_.size(); ++i)
+        for (uint_t i = 0; i < groups_.size(); ++i)
         {
             try
             {
@@ -78,7 +77,7 @@ std::pair<std::string_view, std::uint64_t> database::get_task(std::uint64_t clie
             }
             catch (...)
             {
-                for (std::uint64_t j = 0; j < i; ++j)
+                for (uint_t j = 0; j < i; ++j)
                 {
                     groups_[j].choises->rollback_add();
                 }
@@ -100,7 +99,7 @@ std::pair<std::string_view, std::uint64_t> database::get_task(std::uint64_t clie
 
         while (task_record.second)
         {
-            const std::uint64_t task_id = groups_[group_id].choises->choose(client_id);
+            const uint_t task_id = groups_[group_id].choises->choose(client_id);
             task_record = groups_[group_id].tasks->get(task_id);
         }
 
@@ -119,7 +118,7 @@ std::pair<std::string_view, std::uint64_t> database::get_task(std::uint64_t clie
 /**
  *
  */
-std::uint64_t database::task_count(std::uint64_t group_id) const
+uint_t database::task_count(uint_t group_id) const
 {
     std::unique_lock lock(base_mtx_);
     check_limit(group_id, groups_.size(), "database::task_count(): Group id out of range");
@@ -129,7 +128,7 @@ std::uint64_t database::task_count(std::uint64_t group_id) const
 /**
  *
  */
-std::pair<std::string_view, bool> database::examine_task(std::uint64_t group_id, std::uint64_t task_id) const
+std::pair<std::string_view, bool> database::examine_task(uint_t group_id, uint_t task_id) const
 {
     std::unique_lock lock(base_mtx_);
     check_limit(group_id, groups_.size(), "database::examine_count(): Group id out of range");
@@ -139,8 +138,7 @@ std::pair<std::string_view, bool> database::examine_task(std::uint64_t group_id,
 /**
  *
  */
-void database::update_task(std::uint64_t group_id, std::uint64_t task_id,
-    bool removed)
+void database::update_task(uint_t group_id, uint_t task_id, bool removed)
 {
     std::unique_lock lock(base_mtx_);
     check_limit(group_id, groups_.size(), "database::update_task(): Group id out of range");
@@ -150,8 +148,7 @@ void database::update_task(std::uint64_t group_id, std::uint64_t task_id,
 /**
  *
  */
-void database::update_task(
-    std::uint64_t group_id, std::uint64_t task_id, std::string_view task)
+void database::update_task(uint_t group_id, uint_t task_id, std::string_view task)
 {
     std::unique_lock lock(base_mtx_);
     check_limit(group_id, groups_.size(), "database::update_task(): Group id out of range");
@@ -161,7 +158,7 @@ void database::update_task(
 /**
  * Add task
  */
-void database::add_task(std::uint64_t group_id, std::string_view task)
+void database::add_task(uint_t group_id, std::string_view task)
 {
     std::unique_lock lock(base_mtx_);
     check_limit(group_id, groups_.size(), "database::add_task(): Group id out of range");
@@ -205,14 +202,14 @@ void database::serialize(const std::filesystem::path &to_folder) const
     output.write(reinterpret_cast<const char *>(&header), sizeof(client_header_t));
     check_ostream(output, "database::serialize(): cannot serialize header");
 
-    for (std::uint64_t i = 0; i < clients_.size(); ++i)
+    for (uint_t i = 0; i < clients_.size(); ++i)
     {
         output.write(reinterpret_cast<const char *>(&clients_[i].last_active),
             sizeof(std::time_t));
         check_ostream(output, "database::serialize(): cannot serialize client data");
     }
 
-    for (std::uint64_t i = 0; i < groups_.size(); ++i)
+    for (uint_t i = 0; i < groups_.size(); ++i)
     {
         const std::string full_choise_name = std::to_string(i) + "-" + CHOISES_FILE;
         const std::string full_task_name = std::to_string(i) + "-" + TASKS_FILE;
@@ -242,13 +239,13 @@ void database::deserialize(const std::filesystem::path &from_folder)
     std::vector<detail::choise_base> choises_swap;
 
     clients_swap.resize(header.clients_count);
-    for (std::uint64_t i = 0; i < header.clients_count; ++i)
+    for (uint_t i = 0; i < header.clients_count; ++i)
     {
         input.read(reinterpret_cast<char *>(&clients_swap[i].last_active), sizeof(std::time_t));
         check_istream(input, "database::deserialize(): cannot deserialize client data");
     }
 
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         const std::string task_db = std::to_string(i) + "-" + TASKS_FILE;
         const std::string choise_db = std::to_string(i) + "-" + CHOISES_FILE;
@@ -259,7 +256,7 @@ void database::deserialize(const std::filesystem::path &from_folder)
     }
 
     clients_.swap(clients_swap);
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         groups_[i].tasks->swap(tasks_swap[i]);
         groups_[i].choises->swap(choises_swap[i]);

@@ -20,10 +20,10 @@ struct task_entry_t
 
 struct task_header_t
 {
-    std::uint64_t max_task_size;
-    std::uint64_t task_count;
-    std::uint64_t granularity;
-    std::uint64_t capacity;
+    uint_t max_task_size;
+    uint_t task_count;
+    uint_t granularity;
+    uint_t capacity;
 };
 
 } // namespace
@@ -32,7 +32,7 @@ task_base::task_base()
 {
 }
 
-task_base::task_base(const std::uint64_t max_task_size, const std::uint64_t granularity)
+task_base::task_base(const uint_t max_task_size, const uint_t granularity)
 {
     //
     // Checks
@@ -53,27 +53,27 @@ task_base::task_base(const std::uint64_t max_task_size, const std::uint64_t gran
     base_.resize(task_entry_size_ * capacity_);
 }
 
-std::uint64_t task_base::max_task_size() const noexcept
+uint_t task_base::max_task_size() const noexcept
 {
     return max_task_size_;
 }
 
-std::uint64_t task_base::capacity() const noexcept
+uint_t task_base::capacity() const noexcept
 {
     return capacity_;
 }
 
-std::uint64_t task_base::size() const noexcept
+uint_t task_base::size() const noexcept
 {
     return task_count_;
 }
 
-std::uint8_t *task_base::get_task_entry(std::uint64_t id)
+std::uint8_t *task_base::get_task_entry(uint_t id)
 {
     return base_.data() + task_entry_size_ * id;
 }
 
-const std::uint8_t *task_base::get_task_entry(std::uint64_t id) const
+const std::uint8_t *task_base::get_task_entry(uint_t id) const
 {
     return base_.data() + task_entry_size_ * id;
 }
@@ -84,7 +84,7 @@ void task_base::expand()
     capacity_ += granularity_;
 }
 
-std::uint64_t task_base::add(std::string_view task)
+uint_t task_base::add(std::string_view task)
 {
     check_limit(task.size(), max_task_size_, "task_base::add(): Task size is too big");
 
@@ -93,7 +93,7 @@ std::uint64_t task_base::add(std::string_view task)
         expand();
     }
 
-    const std::uint64_t result_id = task_count_;
+    const uint_t result_id = task_count_;
 
     const auto task_entry = reinterpret_cast<task_entry_t *>(get_task_entry(result_id));
     task_entry->removed = 0;
@@ -104,7 +104,7 @@ std::uint64_t task_base::add(std::string_view task)
     return result_id;
 }
 
-std::pair<std::string_view, bool> task_base::get(std::uint64_t id) const
+std::pair<std::string_view, bool> task_base::get(uint_t id) const
 {
     check_limit(id, task_count_, "task_base::get(): Task index out of range");
 
@@ -114,14 +114,14 @@ std::pair<std::string_view, bool> task_base::get(std::uint64_t id) const
         task_entry->removed);
 }
 
-void task_base::update(std::uint64_t id, bool removed)
+void task_base::update(uint_t id, bool removed)
 {
     check_limit(id, task_count_, "task_base::update(): Task index out of range");
     const auto task_entry = reinterpret_cast<task_entry_t *>(get_task_entry(id));
     task_entry->removed = removed;
 }
 
-void task_base::update(std::uint64_t id, std::string_view task)
+void task_base::update(uint_t id, std::string_view task)
 {
     check_limit(task.size(), max_task_size_, "task_base::update(): Task size is too big");
     check_limit(id, task_count_, "task_base::update(): Task index out of range");
@@ -147,7 +147,7 @@ void task_base::serialize(const std::filesystem::path &to) const
     output.write(reinterpret_cast<const char *>(&header), sizeof(task_header_t));
     check_ostream(output, "task_base::serialize(): cannot serialize header");
 
-    for (std::uint64_t i = 0; i < task_count_; ++i)
+    for (uint_t i = 0; i < task_count_; ++i)
     {
         const auto task_entry = reinterpret_cast<const task_entry_t *>(get_task_entry(i));
         const auto usefull_size = sizeof(task_entry_t) + task_entry->size;
@@ -184,10 +184,10 @@ void task_base::deserialize(const std::filesystem::path &from)
         "task_base::deserialize(): `capacity` should be multiple of `granularity`");
 
     std::vector<std::uint8_t> base;
-    const std::uint64_t task_entry_size = header.max_task_size + sizeof(task_entry_t);
+    const uint_t task_entry_size = header.max_task_size + sizeof(task_entry_t);
     base.resize(header.capacity * task_entry_size);
 
-    for (std::uint64_t i = 0; i < header.task_count; ++i)
+    for (uint_t i = 0; i < header.task_count; ++i)
     {
         const auto task_entry =
             reinterpret_cast<task_entry_t *>(base.data() + i * task_entry_size);

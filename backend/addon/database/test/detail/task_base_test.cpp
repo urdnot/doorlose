@@ -62,14 +62,14 @@ TEST_F(task_base_test, add_change_size)
 
 TEST_F(task_base_test, add_more_capacity_increase_capacity)
 {
-    const std::uint64_t START_CAPACITY = 10;
+    const uint_t START_CAPACITY = 10;
     task_base tb(1024, START_CAPACITY);
 
 
     EXPECT_EQ(0, tb.size());
     EXPECT_EQ(START_CAPACITY, tb.capacity());
 
-    for (std::uint64_t i = 0; i < START_CAPACITY; ++i)
+    for (uint_t i = 0; i < START_CAPACITY; ++i)
     {
         tb.add(TEST_TASK);
         EXPECT_EQ(i + 1, tb.size());

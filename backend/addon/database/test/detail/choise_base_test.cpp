@@ -79,7 +79,7 @@ TEST_F(choise_base_test, add_client_more_capacity_increase_capacity)
 
     EXPECT_EQ(0, cb.size());
     EXPECT_EQ(10, cb.capacity());
-    for (std::uint64_t i = 0; i < 10; ++i)
+    for (uint_t i = 0; i < 10; ++i)
     {
         EXPECT_EQ(i, cb.add());
         EXPECT_EQ(10, cb.capacity());
@@ -101,15 +101,15 @@ TEST_F(choise_base_test, rollback_add_check)
 
 TEST_F(choise_base_test, choose_task_index)
 {
-    const std::uint64_t TASK_COUNT = 13;
+    const uint_t TASK_COUNT = 13;
     choise_base cb(64, 10);
     cb.increase_mask(TASK_COUNT);
 
     const auto client_id = cb.add();
-    std::vector<std::uint64_t> generated;
-    for (std::uint64_t i = 0; i < TASK_COUNT; ++i)
+    std::vector<uint_t> generated;
+    for (uint_t i = 0; i < TASK_COUNT; ++i)
     {
-        const std::uint64_t num = cb.choose(client_id);
+        const uint_t num = cb.choose(client_id);
 
         EXPECT_TRUE(0 <= num && num <TASK_COUNT);
 
@@ -130,20 +130,20 @@ TEST_F(choise_base_test, choose_task_index)
 
 TEST_F(choise_base_test, choose_task_cyclic)
 {
-    const std::uint64_t TASK_COUNT = 13;
+    const uint_t TASK_COUNT = 13;
     choise_base cb(64, 10);
     cb.increase_mask(TASK_COUNT);
 
     const auto client_id = cb.add();
-    for (std::uint64_t i = 0; i < TASK_COUNT; ++i)
+    for (uint_t i = 0; i < TASK_COUNT; ++i)
     {
         cb.choose(client_id);
     }
     
-    std::vector<std::uint64_t> generated;
-    for (std::uint64_t i = 0; i < TASK_COUNT; ++i)
+    std::vector<uint_t> generated;
+    for (uint_t i = 0; i < TASK_COUNT; ++i)
     {
-        const std::uint64_t num = cb.choose(client_id);
+        const uint_t num = cb.choose(client_id);
 
         EXPECT_TRUE(0 <= num && num <TASK_COUNT);
 
@@ -215,21 +215,21 @@ TEST_F(choise_base_test, serialize_create_file)
 
 TEST_F(choise_base_test, serialize_deserialize)
 {
-    std::vector<std::uint64_t> expected;
-    std::uint64_t client_id;
+    std::vector<uint_t> expected;
+    uint_t client_id;
     {
         choise_base cb(64, 10);
         cb.increase_mask(32);
 
         client_id = cb.add();
-        for (std::uint64_t i = 0; i < 16; ++i)
+        for (uint_t i = 0; i < 16; ++i)
         {
             cb.choose(client_id);
         }
 
         cb.serialize(FILE_PATH);
 
-        for (std::uint64_t i = 0; i < 16; ++i)
+        for (uint_t i = 0; i < 16; ++i)
         {
             expected.push_back(cb.choose(client_id));
         }
@@ -239,8 +239,8 @@ TEST_F(choise_base_test, serialize_deserialize)
     choise_base cb;
     cb.deserialize(FILE_PATH);
 
-    std::vector<std::uint64_t> result;
-    for (std::uint64_t i = 0; i < 16; ++i)
+    std::vector<uint_t> result;
+    for (uint_t i = 0; i < 16; ++i)
     {
         result.push_back(cb.choose(client_id));
     }

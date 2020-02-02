@@ -38,8 +38,7 @@ std::tuple<status_t, std::string_view> initialize() noexcept
     }
 }
 
-std::tuple<status_t, std::string_view, std::uint64_t> get_task(std::uint64_t client_id,
-    std::uint64_t group_id) noexcept
+std::tuple<status_t, std::string_view, uint_t> get_task(uint_t client_id, uint_t group_id) noexcept
 {
     if (g_database == nullptr)
     {
@@ -72,8 +71,7 @@ std::tuple<status_t, std::string_view, std::uint64_t> get_task(std::uint64_t cli
     }
 }
 
-std::tuple<status_t, std::string_view, std::uint64_t> task_count(
-    std::uint64_t group_id) noexcept
+std::tuple<status_t, std::string_view, uint_t> task_count(uint_t group_id) noexcept
 {
     if (g_database == nullptr)
     {
@@ -102,8 +100,7 @@ std::tuple<status_t, std::string_view, std::uint64_t> task_count(
     }
 }
 
-std::tuple<status_t, std::string_view, bool> examine_task(std::uint64_t group_id,
-    std::uint64_t task_id) noexcept
+std::tuple<status_t, std::string_view, bool> examine_task(uint_t group_id, uint_t task_id) noexcept
 {
     if (g_database == nullptr)
     {
@@ -132,8 +129,8 @@ std::tuple<status_t, std::string_view, bool> examine_task(std::uint64_t group_id
     }
 }
 
-std::tuple<status_t, std::string_view> set_removed_flag(std::uint64_t group_id,
-    std::uint64_t task_id, bool removed) noexcept
+std::tuple<status_t, std::string_view> set_removed_flag(uint_t group_id, uint_t task_id,
+    bool removed) noexcept
 {
     if (g_database == nullptr)
     {
@@ -162,8 +159,8 @@ std::tuple<status_t, std::string_view> set_removed_flag(std::uint64_t group_id,
     }
 }
 
-std::tuple<status_t, std::string_view> update_task(std::uint64_t group_id,
-    std::uint64_t task_id, std::string_view task) noexcept
+std::tuple<status_t, std::string_view> update_task(uint_t group_id, uint_t task_id,
+    std::string_view task) noexcept
 {
     if (g_database == nullptr)
     {
@@ -192,8 +189,7 @@ std::tuple<status_t, std::string_view> update_task(std::uint64_t group_id,
     }
 }
 
-std::tuple<status_t, std::string_view> add_task(std::uint64_t group_id, 
-    std::string_view task) noexcept
+std::tuple<status_t, std::string_view> add_task(uint_t group_id, std::string_view task) noexcept
 {
     if (g_database == nullptr)
     {

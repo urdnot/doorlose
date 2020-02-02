@@ -14,12 +14,12 @@ namespace {
 
 struct choise_header_t
 {
-    std::uint64_t mask_size;
-    std::uint64_t mask_granularity;
-    std::uint64_t mask_capacity;
-    std::uint64_t record_size;
-    std::uint64_t record_granularity;
-    std::uint64_t record_capacity;
+    uint_t mask_size;
+    uint_t mask_granularity;
+    uint_t mask_capacity;
+    uint_t record_size;
+    uint_t record_granularity;
+    uint_t record_capacity;
 };
 
 } // namespace
@@ -28,7 +28,7 @@ choise_base::choise_base()
 {
 }
 
-choise_base::choise_base(std::uint64_t mask_granularity, const std::uint64_t record_granularity)
+choise_base::choise_base(uint_t mask_granularity, const uint_t record_granularity)
 {
     //
     // Checks
@@ -50,37 +50,37 @@ choise_base::choise_base(std::uint64_t mask_granularity, const std::uint64_t rec
     base_.resize((mask_capacity_ / 8) * record_capacity_);
 }
 
-std::uint64_t choise_base::size() const noexcept
+uint_t choise_base::size() const noexcept
 {
     return record_size_;
 }
 
-std::uint64_t choise_base::capacity() const noexcept
+uint_t choise_base::capacity() const noexcept
 {
     return record_capacity_;
 }
 
-std::uint64_t choise_base::mask_size() const noexcept
+uint_t choise_base::mask_size() const noexcept
 {
     return mask_size_;
 }
 
-std::uint64_t choise_base::mask_capacity() const noexcept
+uint_t choise_base::mask_capacity() const noexcept
 {
     return mask_capacity_;
 }
 
-std::uint8_t *choise_base::get_entry(std::uint64_t id) noexcept
+std::uint8_t *choise_base::get_entry(uint_t id) noexcept
 {
     return base_.data() + (mask_capacity_ / 8) * id;
 }
 
-const std::uint8_t *choise_base::get_entry(std::uint64_t id) const noexcept
+const std::uint8_t *choise_base::get_entry(uint_t id) const noexcept
 {
     return base_.data() + (mask_capacity_ / 8) * id;
 }
 
-std::uint64_t choise_base::add()
+uint_t choise_base::add()
 {
     if (record_size_ == record_capacity_)
     {
@@ -90,18 +90,18 @@ std::uint64_t choise_base::add()
     return record_size_++;
 }
 
-std::uint64_t choise_base::choose(std::uint64_t id)
+uint_t choise_base::choose(uint_t id)
 {
     check_limit(id, record_size_, "choise_base::choose(): Client index out of range");
     return bitset::get_random(get_entry(id), mask_size_);
 }
 
-void choise_base::increase_mask(std::uint64_t delta)
+void choise_base::increase_mask(uint_t delta)
 {
     if (mask_size_ + delta > mask_capacity_)
     {
-        const std::uint64_t new_size = mask_size_ + delta;
-        const std::uint64_t dlt = (new_size / mask_granularity_ +
+        const uint_t new_size = mask_size_ + delta;
+        const uint_t dlt = (new_size / mask_granularity_ +
             ((new_size % mask_granularity_) ? 1 : 0)) - (mask_capacity_ / mask_granularity_);
         expand_mask(dlt);
     }
@@ -139,7 +139,7 @@ void choise_base::serialize(const std::filesystem::path &to) const
     output.write(reinterpret_cast<const char *>(&header), sizeof(choise_header_t));
     check_ostream(output, "choise_base::serialize(): cannot serialize header");
 
-    for (std::uint64_t i = 0; i < record_size_; ++i)
+    for (uint_t i = 0; i < record_size_; ++i)
     {
         output.write(reinterpret_cast<const char *>(get_entry(i)), mask_capacity_);
         check_ostream(output, "choise_base::serialize(): cannot serialize client choise mask");
@@ -179,7 +179,7 @@ void choise_base::deserialize(const std::filesystem::path &from)
     std::vector<std::uint8_t> base;
     base.resize(header.record_capacity * (header.mask_capacity / 8));
 
-    for (std::uint64_t i = 0; i < header.record_size; ++i)
+    for (uint_t i = 0; i < header.record_size; ++i)
     {
         const auto entry_size = header.mask_capacity / 8;
         const auto entry = reinterpret_cast<char *>(base.data()) + i * entry_size;
@@ -210,14 +210,14 @@ void choise_base::swap(choise_base &cb) noexcept
     base_.swap(cb.base_);
 }
 
-void choise_base::expand(std::uint64_t delta)
+void choise_base::expand(uint_t delta)
 {
     base_.resize(base_.size() +
         (mask_capacity_ / 8) * (record_capacity_ + delta * record_granularity_));
     record_capacity_ += delta * record_granularity_;
 }
 
-void choise_base::expand_mask(std::uint64_t delta)
+void choise_base::expand_mask(uint_t delta)
 {
     base_.resize(base_.size() +
         ((mask_capacity_ + delta * mask_granularity_) / 8) * record_capacity_);

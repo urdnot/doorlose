@@ -25,42 +25,42 @@ public:
     /**
      *
      */
-    explicit task_base(const std::uint64_t task_size, const std::uint64_t granularity);
+    explicit task_base(const uint_t task_size, const uint_t granularity);
 
     /**
      *
      */
-    std::uint64_t max_task_size() const noexcept;
+    uint_t max_task_size() const noexcept;
 
     /**
      *
      */
-    std::uint64_t capacity() const noexcept;
+    uint_t capacity() const noexcept;
 
     /**
      *
      */
-    std::uint64_t size() const noexcept;
+    uint_t size() const noexcept;
 
     /**
      *
      */
-    std::pair<std::string_view, bool> get(std::uint64_t id) const;
+    std::pair<std::string_view, bool> get(uint_t id) const;
 
     /**
      *
      */
-    std::uint64_t add(std::string_view task);
+    uint_t add(std::string_view task);
 
     /**
      *
      */
-    void update(std::uint64_t id, bool removed);
+    void update(uint_t id, bool removed);
 
     /**
      *
      */
-    void update(std::uint64_t id, std::string_view task);
+    void update(uint_t id, std::string_view task);
 
     /**
      * Strong exception guaranty.
@@ -82,16 +82,16 @@ public:
     void swap(task_base &tb) noexcept;
 
 private:
-    std::uint8_t *get_task_entry(std::uint64_t id);
-    const std::uint8_t *get_task_entry(std::uint64_t id) const;
+    std::uint8_t *get_task_entry(uint_t id);
+    const std::uint8_t *get_task_entry(uint_t id) const;
     void expand();
 
 private:
-    std::uint64_t max_task_size_{};
-    std::uint64_t task_entry_size_{};
-    std::uint64_t granularity_{};
-    std::uint64_t capacity_{};
-    std::uint64_t task_count_{};
+    uint_t max_task_size_{};
+    uint_t task_entry_size_{};
+    uint_t granularity_{};
+    uint_t capacity_{};
+    uint_t task_count_{};
 
     std::vector<std::uint8_t> base_;
 };

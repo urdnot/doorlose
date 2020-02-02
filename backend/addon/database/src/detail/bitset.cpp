@@ -9,13 +9,13 @@ namespace addon {
 namespace database {
 namespace detail {
 
-std::uint64_t bitset::popcnt_64(const std::uint64_t *num) noexcept
+uint_t bitset::popcnt_64(const std::uint64_t *num) noexcept
 {
     auto bs = std::bitset<64>(*num);
-    return bs.count();
+    return uint_t(bs.count());
 }
 
-std::uint64_t bitset::set_zero_bit_64(std::uint64_t *num, std::uint64_t n) noexcept
+uint_t bitset::set_zero_bit_64(std::uint64_t *num, uint_t n) noexcept
 {
     std::uint64_t v = ~(*num);                   // Input value to find position with rank r.
     unsigned int r = (unsigned int)n + 1;        // Input: bit's desired rank [1-64].
@@ -45,10 +45,10 @@ std::uint64_t bitset::set_zero_bit_64(std::uint64_t *num, std::uint64_t n) noexc
 
     *num |= std::uint64_t(1) << (64 - s);
 
-    return std::uint64_t(s - 1);
+    return uint_t(s - 1);
 }
 
-std::uint64_t bitset::get_random(std::uint8_t *mask, std::uint64_t bit_size) noexcept
+uint_t bitset::get_random(std::uint8_t *mask, uint_t bit_size) noexcept
 {
     assert(((std::uint64_t)(mask) % 8) == 0); // check that pointer 8-byte align
 
@@ -56,12 +56,12 @@ std::uint64_t bitset::get_random(std::uint8_t *mask, std::uint64_t bit_size) noe
     const auto rem_64 = 64 - bit_size % 64;
     const auto size_64 = (bit_size / 64) + (rem_64 ? 1 : 0);
 
-    std::uint64_t all_pop = 0;
-    for (std::uint64_t i = 0; i < size_64; ++i)
+    uint_t all_pop = 0;
+    for (uint_t i = 0; i < size_64; ++i)
     {
         all_pop += popcnt_64(mask_64 + i);
     }
-    std::uint64_t all_zero = bit_size - all_pop;
+    uint_t all_zero = bit_size - all_pop;
 
     if (!all_zero)
     {
@@ -70,11 +70,11 @@ std::uint64_t bitset::get_random(std::uint8_t *mask, std::uint64_t bit_size) noe
     }
 
     std::srand((unsigned int)(std::time(nullptr)));
-    const std::uint64_t rid = std::rand() % all_zero;
-    std::uint64_t tmp = rid;
-    std::uint64_t result = 0;
+    const uint_t rid = std::rand() % all_zero;
+    uint_t tmp = rid;
+    uint_t result = 0;
 
-    for (std::uint64_t i = 0; i < size_64; ++i)
+    for (uint_t i = 0; i < size_64; ++i)
     {
         const auto pop = 64 - popcnt_64(mask_64 + i);
         if (tmp < pop)

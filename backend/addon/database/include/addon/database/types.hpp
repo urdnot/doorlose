@@ -2,10 +2,14 @@
 
 #include <addon/database/detail/common.hpp>
 
+#include <cstdint>
 #include <exception>
 
 namespace addon {
 namespace database {
+
+typedef std::uint32_t uint_t;
+typedef std::uint64_t big_uint_t;
 
 class ADDON_DATABASE_EXPORT exception : public std::exception
 {

@@ -16,7 +16,7 @@ namespace database {
 class ADDON_DATABASE_EXPORT database
 {
 public:
-    static const std::uint64_t UNDEFINED_CLIENT_ID = 0xFFFFFFFFFFFFFFFF;
+    static const uint_t UNDEFINED_CLIENT_ID = 0xFFFFFFFF;
 
 public:
     explicit database();
@@ -28,8 +28,7 @@ public:
     /**
      * Get random task from specified group for specified client
      */
-    std::pair<std::string_view, std::uint64_t> get_task(std::uint64_t client_id,
-        std::uint64_t group_id);
+    std::pair<std::string_view, uint_t> get_task(uint_t client_id, uint_t group_id);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -39,30 +38,28 @@ public:
     /**
      *
      */
-    std::uint64_t task_count(std::uint64_t group_id) const;
+    uint_t task_count(uint_t group_id) const;
 
     /**
      *
      */
-    std::pair<std::string_view, bool> examine_task(std::uint64_t group_id,
-        std::uint64_t task_id) const;
+    std::pair<std::string_view, bool> examine_task(uint_t group_id,
+        uint_t task_id) const;
 
     /**
      *
      */
-    void update_task(std::uint64_t group_id,
-        std::uint64_t task_id, bool removed);
+    void update_task(uint_t group_id, uint_t task_id, bool removed);
 
     /**
      *
      */
-    void update_task(std::uint64_t group_id,
-        std::uint64_t task_id, std::string_view task);
+    void update_task(uint_t group_id, uint_t task_id, std::string_view task);
 
     /**
      * Add task
      */
-    void add_task(std::uint64_t group_id, std::string_view task);
+    void add_task(uint_t group_id, std::string_view task);
 
     void serialize(const std::filesystem::path &to_folder) const;
     void deserialize(const std::filesystem::path &from_folder);
@@ -97,11 +94,11 @@ private:
     };
 
 private:
-    const std::uint64_t GROUPS_COUNT = 6;            // groups
-    const std::uint64_t MASK_GRANULARITY = 512;      // bits
-    const std::uint64_t CLIENT_GRANULARITY = 1000;   // clients
-    const std::uint64_t MAX_TASK_SIZE = 4096;        // bytes
-    const std::uint64_t TASK_GRANULARITY = 1000;     // tasks
+    const uint_t GROUPS_COUNT = 6;            // groups
+    const uint_t MASK_GRANULARITY = 512;      // bits
+    const uint_t CLIENT_GRANULARITY = 1000;   // clients
+    const uint_t MAX_TASK_SIZE = 4096;        // bytes
+    const uint_t TASK_GRANULARITY = 1000;     // tasks
 
     const std::string CLIENTS_FILE = "clients.db";
     const std::string CHOISES_FILE = "choises.db";

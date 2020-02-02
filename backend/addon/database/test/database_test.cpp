@@ -169,17 +169,17 @@ TEST_F(database_test, add_task_check)
 
 TEST_F(database_test, serialize_create_folder_and_files)
 {
-    const std::uint64_t GROUPS_COUNT = 6;
+    const uint_t GROUPS_COUNT = 6;
     database db;
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         db.add_task(i, TEST_TASK);
         db.add_task(i, TEST_TASK_1);
     }
 
-    std::vector<std::pair<std::string_view, std::uint64_t>> res;
+    std::vector<std::pair<std::string_view, uint_t>> res;
 
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         res.push_back(db.get_task(database::UNDEFINED_CLIENT_ID, i));
     }
@@ -188,7 +188,7 @@ TEST_F(database_test, serialize_create_folder_and_files)
     EXPECT_TRUE(std::filesystem::exists(TEST_FOLDER_PATH));
     EXPECT_TRUE(std::filesystem::exists(TEST_FOLDER_PATH / "clients.db"));
 
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         const std::string choise_db = std::to_string(i) + "-choises.db";
         const std::string task_db = std::to_string(i) + "-tasks.db";
@@ -199,17 +199,17 @@ TEST_F(database_test, serialize_create_folder_and_files)
 
 TEST_F(database_test, serialize_deserialize)
 {
-    const std::uint64_t GROUPS_COUNT = 6;
+    const uint_t GROUPS_COUNT = 6;
     database db;
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         db.add_task(i, TEST_TASK);
         db.add_task(i, TEST_TASK_1);
     }
 
-    std::vector<std::pair<std::string, std::uint64_t>> res;
+    std::vector<std::pair<std::string, uint_t>> res;
 
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         const auto tmp = db.get_task(database::UNDEFINED_CLIENT_ID, i);
         res.emplace_back(tmp.first, tmp.second);
@@ -218,7 +218,7 @@ TEST_F(database_test, serialize_deserialize)
     db.serialize(TEST_FOLDER_PATH);
     db.deserialize(TEST_FOLDER_PATH);
 
-    for (std::uint64_t i = 0; i < GROUPS_COUNT; ++i)
+    for (uint_t i = 0; i < GROUPS_COUNT; ++i)
     {
         const auto result = db.get_task(res[i].second, i);
 

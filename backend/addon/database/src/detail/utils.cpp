@@ -4,7 +4,7 @@ namespace addon {
 namespace database {
 namespace detail {
 
-void check_non_zero(std::uint64_t value, std::string_view error_msg)
+void check_non_zero(uint_t value, std::string_view error_msg)
 {
     if (!value)
     {
@@ -12,7 +12,7 @@ void check_non_zero(std::uint64_t value, std::string_view error_msg)
     }
 }
 
-void check_mult(std::uint64_t dividend, std::uint64_t divider, std::string_view error_msg)
+void check_mult(uint_t dividend, uint_t divider, std::string_view error_msg)
 {
     if (!divider || dividend % divider)
     {
@@ -20,7 +20,7 @@ void check_mult(std::uint64_t dividend, std::uint64_t divider, std::string_view 
     }
 }
 
-void check_limit(std::uint64_t value, std::uint64_t limit,
+void check_limit(uint_t value, uint_t limit,
     std::string_view error_msg)
 {
     if (value >= limit)

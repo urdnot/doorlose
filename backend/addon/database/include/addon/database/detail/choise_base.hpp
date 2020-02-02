@@ -24,43 +24,43 @@ public:
     /**
      *
      */
-    explicit choise_base(std::uint64_t mask_granularity,
-        const std::uint64_t record_granularity);
+    explicit choise_base(uint_t mask_granularity,
+        const uint_t record_granularity);
     
     /**
      *
      */
-    std::uint64_t size() const noexcept;
+    uint_t size() const noexcept;
 
     /**
      *
      */
-    std::uint64_t capacity() const noexcept;
+    uint_t capacity() const noexcept;
 
     /**
      *
      */
-    std::uint64_t mask_size() const noexcept;
+    uint_t mask_size() const noexcept;
 
     /**
      *
      */
-    std::uint64_t mask_capacity() const noexcept;
+    uint_t mask_capacity() const noexcept;
 
     /**
      * Add client
      */
-    std::uint64_t add();
+    uint_t add();
 
     /**
      * Choose random task
      */
-    std::uint64_t choose(std::uint64_t client_id);
+    uint_t choose(uint_t client_id);
 
     /**
      * Expand choise's masks
      */
-    void increase_mask(std::uint64_t delta);
+    void increase_mask(uint_t delta);
 
     /**
      *
@@ -88,19 +88,19 @@ public:
     void swap(choise_base &cb) noexcept;
 
 private:
-    std::uint8_t *get_entry(std::uint64_t id) noexcept;
-    const std::uint8_t *get_entry(std::uint64_t id) const noexcept;
-    void expand(std::uint64_t delta);
-    void expand_mask(std::uint64_t delta);
+    std::uint8_t *get_entry(uint_t id) noexcept;
+    const std::uint8_t *get_entry(uint_t id) const noexcept;
+    void expand(uint_t delta);
+    void expand_mask(uint_t delta);
 
 private:
-    std::uint64_t mask_size_{};
-    std::uint64_t prev_mask_size_{};
-    std::uint64_t mask_granularity_{};
-    std::uint64_t mask_capacity_{};
-    std::uint64_t record_size_{};
-    std::uint64_t record_granularity_{};
-    std::uint64_t record_capacity_{};
+    uint_t mask_size_{};
+    uint_t prev_mask_size_{};
+    uint_t mask_granularity_{};
+    uint_t mask_capacity_{};
+    uint_t record_size_{};
+    uint_t record_granularity_{};
+    uint_t record_capacity_{};
 
     std::vector<std::uint8_t> base_;
 };

@@ -15,6 +15,7 @@ enum status_t : std::uint8_t
     INTERNAL_ERROR,
     LOST_MESSAGE,
     NOT_INITIALIZED,
+    EXPOSE_ERROR,
 };
 
 /**
@@ -25,38 +26,38 @@ ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view> initialize() noexce
 /**
  *
  */
-ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view, std::uint64_t> get_task(
-    std::uint64_t client_id, std::uint64_t group_id) noexcept;
+ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view, uint_t> get_task(
+    uint_t client_id, uint_t group_id) noexcept;
 
 /**
  *
  */
-ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view, std::uint64_t> task_count(
-    std::uint64_t group_id) noexcept;
+ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view, uint_t> task_count(
+    uint_t group_id) noexcept;
 
 /**
  *
  */
 ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view, bool> examine_task(
-    std::uint64_t group_id, std::uint64_t task_id) noexcept;
+    uint_t group_id, uint_t task_id) noexcept;
 
 /**
  *
  */
 ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view> set_removed_flag(
-    std::uint64_t group_id, std::uint64_t task_id, bool removed) noexcept;
+    uint_t group_id, uint_t task_id, bool removed) noexcept;
 
 /**
  *
  */
 ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view> update_task(
-    std::uint64_t group_id, std::uint64_t task_id, std::string_view task) noexcept;
+    uint_t group_id, uint_t task_id, std::string_view task) noexcept;
 
 /**
  *
  */
 ADDON_DATABASE_EXPORT std::tuple<status_t, std::string_view> add_task(
-    std::uint64_t group_id, std::string_view task) noexcept;
+    uint_t group_id, std::string_view task) noexcept;
 
 /**
  *

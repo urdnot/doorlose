@@ -22,12 +22,12 @@ public:
 TEST_F(bitset_test, basic)
 {
     std::vector<std::uint64_t> buf(4);
-    std::vector<std::uint64_t> generated;
-    const std::uint64_t bit_size = buf.size() * 64 - 13;
+    std::vector<uint_t> generated;
+    const uint_t bit_size = buf.size() * 64 - 13;
 
-    for (std::uint64_t i = 0; i < bit_size; ++i)
+    for (uint_t i = 0; i < bit_size; ++i)
     {
-        const std::uint64_t num =
+        const auto num =
             bitset::get_random(reinterpret_cast<std::uint8_t *>(buf.data()), bit_size);
 
         const auto begin = generated.begin();

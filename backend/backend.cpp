@@ -7,7 +7,7 @@ namespace {
 Napi::Object ExposeError(const Napi::Env &env, const char *msg)
 {
     Napi::Object obj = Napi::Object::New(env);
-    obj.Set(Napi::String::New(env, "status"), static_cast<double>(addon::database::status_t::EXPOSE_ERROR));
+    obj.Set(Napi::String::New(env, "status"), static_cast<double>(addon::database::status_t::JS_SIDE_ERROR));
     obj.Set(Napi::String::New(env, "message"), msg);
     return obj;
 }
@@ -22,8 +22,19 @@ Napi::Object Initialize(const Napi::CallbackInfo &info)
 
     Napi::Env env = info.Env();
     Napi::Object obj = Napi::Object::New(env);
-    obj.Set(Napi::String::New(env, "status"), static_cast<double>(std::get<0>(result)));
-    obj.Set(Napi::String::New(env, "message"), static_cast<const char *>(std::get<1>(result).data()));
+
+    const auto status = Napi::String::New(env, "status");
+    const auto message = Napi::String::New(env, "message");
+
+    if (env.IsExceptionPending())
+    {
+        Napi::Error e = env.GetAndClearPendingException();
+        std::cout << "Exception during Napi::String creation: " << e.Message();
+        return obj;
+    }
+
+    obj.Set(status, static_cast<double>(std::get<0>(result)));
+    obj.Set(message, static_cast<const char *>(std::get<1>(result).data()));
 
     return obj;
 }
@@ -255,7 +266,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set(Napi::String::New(env, "INTERNAL_ERROR"), Napi::Number::New(env, status_t::INTERNAL_ERROR));
     exports.Set(Napi::String::New(env, "LOST_MESSAGE"), Napi::Number::New(env, status_t::LOST_MESSAGE));
     exports.Set(Napi::String::New(env, "NOT_INITIALIZED"), Napi::Number::New(env, status_t::NOT_INITIALIZED));
-    exports.Set(Napi::String::New(env, "EXPOSE_ERROR"), Napi::Number::New(env, status_t::EXPOSE_ERROR));
+    exports.Set(Napi::String::New(env, "JS_SIDE_ERROR"), Napi::Number::New(env, status_t::JS_SIDE_ERROR));
 
     exports.Set(Napi::String::New(env, "UNDEFINED_CLIENT_ID"), Napi::Number::New(env, database::UNDEFINED_CLIENT_ID));
 

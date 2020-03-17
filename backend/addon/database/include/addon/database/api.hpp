@@ -15,7 +15,7 @@ enum status_t : std::uint8_t
     INTERNAL_ERROR,
     LOST_MESSAGE,
     NOT_INITIALIZED,
-    EXPOSE_ERROR,
+    JS_SIDE_ERROR,
 };
 
 /**
